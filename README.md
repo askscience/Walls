@@ -244,6 +244,12 @@ Walls/
 - Check all dependencies are installed
 - Verify Python path configuration
 
+## 🙏 Credits and Acknowledgments
+
+### Third-Party Components
+
+- **ollama-mcp-bridge**: Originally created by [jonigl](https://github.com/jonigl/ollama-mcp-bridge). This component provides an API layer in front of the Ollama API, seamlessly adding tools from multiple MCP servers. We've included a modified version with local bugfixes in this repository.
+
 ## 📝 License
 
 This project is licensed under the GPL-3 License. See individual component LICENSE files for specific details.
