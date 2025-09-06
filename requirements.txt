@@ -1,0 +1,48 @@
+# Unified Requirements for Walls Project
+# This file consolidates all dependencies from individual app folders
+# with the newest versions to avoid conflicts
+
+# GUI Framework - Using newest version from radio_player
+PySide6==6.9.1
+
+# Web Scraping and Parsing - From browser
+beautifulsoup4==4.12.3
+lxml==5.2.2
+
+# HTTP Requests - From radio_player
+requests>=2.31.0,<3
+
+# Environment Variables - From radio_player
+python-dotenv>=1.0.1,<2
+
+# Music Metadata - From radio_player
+musicbrainzngs>=0.7.1,<1
+
+# RAG and AI Dependencies - From rag folder (newest versions)
+llama-index>=0.10.30
+llama-index-llms-ollama>=0.2.0
+llama-index-embeddings-ollama>=0.2.0
+llama-index-readers-file>=0.1.14
+llama-index-vector-stores-chroma>=0.1.7
+chromadb>=0.5.0
+watchdog>=4.0.0
+sentence-transformers>=2.6.0
+ollama>=0.3.0
+numpy<2.0
+vosk
+
+# Voice Mode Dependencies - From ai_interface/voice_mode
+pyaudio>=0.2.11
+soundfile>=0.12.1
+scipy>=1.11.0
+librosa>=0.10.1
+pydub>=0.25.1
+
+# MCP Servers Requirements
+mcp>=1.0.0
+asyncio-mqtt>=0.11.0
+ollama-mcp-bridge
+
+# Note: shared_server has no external dependencies (uses only standard library)
+# Note: ai_interface inherits most dependencies from rag and gui_core
+# Note: Kokoro TTS requires manual installation from GitHub

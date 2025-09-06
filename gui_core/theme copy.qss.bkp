@@ -1,0 +1,641 @@
+/* Modern Vibrant Light Theme - Inspired by Contemporary Mobile UI */
+
+/* Base Widget Styles */
+QWidget {
+    background: #FFFFFF;
+    color: #1A1A2E;
+    font-family: "Inter", "SF Pro Display", "Segoe UI Variable", system-ui;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+/* Containers with glassmorphic effect */
+QFrame, QGroupBox {
+    background: #FFFFFF;
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 20px;
+}
+
+QTextEdit, QListView, QTreeView, QTableView, QAbstractItemView {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1.5px solid rgba(147, 112, 219, 0.15);
+    border-radius: 16px;
+    padding: 12px;
+}
+
+QToolTip {
+    background: #1A1A2E;
+    color: #FFFFFF;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+}
+
+/* ScrollBar Styles - Minimal and Modern */
+QScrollBar:horizontal, QScrollBar:vertical {
+    background: transparent;
+    border: none;
+    margin: 4px;
+}
+
+QScrollBar::handle:horizontal, QScrollBar::handle:vertical {
+    background: rgba(130, 88, 209, 0.4);
+    min-width: 32px;
+    min-height: 32px;
+    border-radius: 12px;
+    margin: 2px;
+}
+
+QScrollBar::handle:horizontal:hover, QScrollBar::handle:vertical:hover {
+    background: rgba(130, 88, 209, 0.6);
+}
+
+QScrollBar::add-line, QScrollBar::sub-line {
+    width: 0;
+    height: 0;
+    border: none;
+    background: transparent;
+}
+
+/* Button Styles - Bold and Vibrant */
+/* Default text button */
+QPushButton {
+    background: transparent;
+    color: #7B61FF;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+QPushButton:hover {
+    background: rgba(123, 97, 255, 0.08);
+}
+
+QPushButton:pressed {
+    background: rgba(123, 97, 255, 0.15);
+    padding: 13px 20px 11px 20px;
+}
+
+QPushButton:disabled {
+    color: rgba(123, 97, 255, 0.35);
+}
+
+/* Primary gradient button */
+QPushButton[variant="primary"] {
+    background: #7B61FF;
+    color: #FFFFFF;
+    border: none;
+    padding: 14px 28px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+QPushButton[variant="primary"]:hover {
+    background: #6B51EF;
+}
+
+QPushButton[variant="primary"]:pressed {
+    background: #5B41DF;
+    padding: 15px 28px 13px 28px;
+}
+
+QPushButton[variant="primary"]:disabled {
+    background: rgba(123, 97, 255, 0.3);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Outlined button with gradient border effect */
+QPushButton[variant="outlined"], QPushButton#outlined {
+    background: rgba(255, 255, 255, 0.9);
+    color: #7B61FF;
+    border: 2px solid;
+    border-color: #7B61FF;
+    font-weight: 600;
+}
+
+QPushButton[variant="outlined"]:hover, QPushButton#outlined:hover {
+    background: rgba(123, 97, 255, 0.05);
+}
+
+/* Tonal button - soft gradient */
+QPushButton[variant="tonal"] {
+    background: rgba(123, 97, 255, 0.15);
+    color: #7B61FF;
+    border: none;
+    font-weight: 600;
+}
+
+QPushButton[variant="tonal"]:hover {
+    background: rgba(123, 97, 255, 0.25);
+}
+
+/* Radio Button Styles */
+QRadioButton {
+    spacing: 10px;
+    font-weight: 500;
+}
+
+QRadioButton::indicator {
+    width: 22px;
+    height: 22px;
+    border-radius: 11px;
+    border: 2.5px solid #E0D4FF;
+    background: #FFFFFF;
+}
+
+QRadioButton::indicator:checked {
+    background: #7B61FF;
+    border-color: #7B61FF;
+}
+
+QRadioButton:hover {
+    color: #7B61FF;
+}
+
+/* CheckBox Styles */
+QCheckBox {
+    spacing: 10px;
+    font-weight: 500;
+}
+
+QCheckBox::indicator {
+    width: 22px;
+    height: 22px;
+    border-radius: 8px;
+    border: 2.5px solid #E0D4FF;
+    background: #FFFFFF;
+}
+
+QCheckBox::indicator:checked {
+    background: #7B61FF;
+    border-color: #7B61FF;
+}
+
+/* Line Edit Styles */
+QLineEdit {
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid rgba(147, 112, 219, 0.2);
+    border-radius: 14px;
+    padding: 10px 16px;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+QLineEdit:focus {
+    border: 2.5px solid #7B61FF;
+    background: #FFFFFF;
+}
+
+/* Slider Styles */
+QSlider::groove:horizontal {
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(123, 97, 255, 0.15);
+}
+
+QSlider::handle:horizontal {
+    width: 24px;
+    height: 24px;
+    margin: -8px 0;
+    border-radius: 12px;
+    background: #7B61FF;
+    border: 3px solid #FFFFFF;
+}
+
+QSlider::sub-page:horizontal {
+    background: #7B61FF;
+    border-radius: 4px;
+}
+
+/* ComboBox Styles */
+QComboBox {
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid rgba(147, 112, 219, 0.2);
+    border-radius: 14px;
+    padding: 10px 40px 10px 16px;
+    font-weight: 500;
+}
+
+QComboBox:hover {
+    border-color: rgba(123, 97, 255, 0.4);
+}
+
+QComboBox:focus {
+    border: 2.5px solid #7B61FF;
+    background: #FFFFFF;
+}
+
+QComboBox::drop-down {
+    width: 32px;
+    border: none;
+    background: transparent;
+}
+
+QComboBox QAbstractItemView {
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(147, 112, 219, 0.2);
+    border-radius: 14px;
+    padding: 4px;
+}
+
+/* Progress Bar Styles */
+QProgressBar {
+    background: rgba(147, 112, 219, 0.1);
+    border: none;
+    border-radius: 12px;
+    height: 12px;
+}
+
+QProgressBar::chunk {
+    background: #7B61FF;
+    border-radius: 12px;
+}
+
+/* Tab Widget Styles */
+QTabWidget::pane {
+    border: none;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+}
+
+QTabBar::tab {
+    background: transparent;
+    color: #8B7DA6;
+    padding: 10px 20px;
+    border: none;
+    margin: 0 6px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+QTabBar::tab:selected {
+    background: rgba(123, 97, 255, 0.15);
+    color: #7B61FF;
+}
+
+QTabBar::tab:hover {
+    background: rgba(123, 97, 255, 0.08);
+}
+
+/* Switch (styled CheckBox) Styles */
+Switch::indicator {
+    width: 52px;
+    height: 28px;
+    border-radius: 14px;
+    background: #E0D4FF;
+    border: none;
+}
+
+Switch::indicator:checked {
+    background: #7B61FF;
+}
+
+/* Calendar Styles */
+QCalendarWidget {
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+    border-radius: 20px;
+}
+
+QCalendarWidget QToolButton {
+    background: transparent;
+    border: none;
+    color: #7B61FF;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+QCalendarWidget QToolButton:hover {
+    background: rgba(123, 97, 255, 0.1);
+}
+
+QCalendarWidget QTableView {
+    outline: 0;
+    background: transparent;
+}
+
+QCalendarWidget QAbstractItemView:enabled {
+    selection-background-color: #7B61FF;
+    selection-color: #FFFFFF;
+    background: transparent;
+}
+
+QCalendarWidget QAbstractItemView:disabled {
+    color: #C4B5D6;
+}
+
+/* GroupBox with modern styling */
+QGroupBox {
+    border: none;
+    background: rgba(255, 255, 255, 0.7);
+    margin-top: 20px;
+    border-radius: 16px;
+    padding-top: 16px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 16px;
+    padding: 0 8px;
+    color: #7B61FF;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Accordion with gradient accents */
+QWidget#accordion { background: transparent; }
+QWidget#accordionSection { 
+    background: #FFFFFF;
+    border: 1.5px solid rgba(147, 112, 219, 0.15);
+    border-radius: 16px;
+}
+QWidget#accordionHeader { background: transparent; padding: 4px; }
+QWidget#accordionHeader QLabel#accordionTitle { 
+    font-weight: 700; 
+    font-size: 16px;
+    color: #1A1A2E;
+}
+QWidget#accordionBody { background: transparent; }
+QPushButton#accordionChevron { 
+    background: transparent; 
+    border: none; 
+    color: #7B61FF; 
+    border-radius: 12px; 
+    font-size: 18px;
+}
+QPushButton#accordionChevron:hover { 
+    background: rgba(123, 97, 255, 0.1); 
+}
+
+/* Card with modern shadows and gradients */
+QWidget#card { background: transparent; }
+QFrame#cardContainer { 
+    background: #FFFFFF;
+    border: 1.5px solid rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+}
+QLabel#cardTitle { 
+    font-weight: 800; 
+    color: #1A1A2E; 
+    font-size: 18px;
+}
+QLabel#cardSubtitle { 
+    color: #7B6B8F; 
+    font-size: 14px;
+    font-weight: 500;
+}
+QLabel#cardMedia { 
+    border-radius: 16px; 
+}
+QWidget#cardActions QPushButton { 
+    background: transparent; 
+    border: none; 
+    color: #7B61FF; 
+    padding: 8px 12px; 
+    border-radius: 12px;
+    font-weight: 600;
+}
+QWidget#cardActions QPushButton:hover { 
+    background: rgba(123, 97, 255, 0.1); 
+}
+
+/* Tabs with pill-style selection */
+QTabWidget::pane {
+    border: 0;
+    background: transparent;
+}
+
+/* Inputs with floating feel */
+QTextEdit, QListView, QTreeView, QTableView, QAbstractItemView {
+    border: 2px solid rgba(147, 112, 219, 0.1);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.98);
+}
+
+QTextEdit:focus, QListView:focus, QTreeView:focus, QTableView:focus {
+    border: 2.5px solid rgba(123, 97, 255, 0.5);
+}
+
+/* Calendar enhanced */
+QCalendarWidget QWidget#qt_calendar_navigationbar {
+    background: transparent;
+}
+
+QCalendarWidget QAbstractItemView {
+    background: rgba(255, 255, 255, 0.95);
+    color: #1A1A2E;
+    font-weight: 600;
+}
+
+QCalendarWidget QTableView {
+    background: transparent;
+    alternate-background-color: transparent;
+    gridline-color: rgba(147, 112, 219, 0.1);
+    border: none;
+}
+
+QCalendarWidget QTableView::item:hover {
+    background: rgba(123, 97, 255, 0.1);
+    border-radius: 8px;
+}
+
+QCalendarWidget QAbstractItemView::item:selected {
+    background: #7B61FF;
+    color: #FFFFFF;
+    border-radius: 8px;
+}
+
+/* Date Picker with modern gradient */
+QWidget#datePicker {
+    background: #FFFFFF;
+    border: 2px solid rgba(147, 112, 219, 0.15);
+    border-radius: 24px;
+}
+
+QWidget#datePicker QLabel#calendarHeadline {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1A1A2E;
+    /* removed gradient background and webkit clip */
+}
+
+QWidget#datePicker QCalendarWidget {
+    border: none;
+    background: transparent;
+}
+
+/* Breadcrumbs with hover effects */
+QWidget#breadcrumbs {
+    background: transparent;
+}
+QWidget#breadcrumbs QPushButton {
+    background: transparent;
+    border: none;
+    color: #7B61FF;
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+QWidget#breadcrumbs QPushButton:hover {
+    background: rgba(123, 97, 255, 0.1);
+}
+QWidget#breadcrumbs QLabel#separator {
+    color: #C4B5D6;
+    padding: 0 8px;
+    font-weight: 300;
+}
+
+/* Pagination with gradient selection */
+QWidget#pagination QPushButton {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(147, 112, 219, 0.15);
+    color: #7B61FF;
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-weight: 600;
+    margin: 0 4px;
+}
+QWidget#pagination QPushButton:hover {
+    background: rgba(123, 97, 255, 0.1);
+    border-color: rgba(123, 97, 255, 0.3);
+}
+QWidget#pagination QPushButton[current="true"] {
+    background: #7B61FF;
+    color: #FFFFFF;
+    border: none;
+}
+
+/* ToolBar flat */
+QToolBar {
+    background: #FFFFFF;
+    border-bottom: 1px solid rgba(147, 112, 219, 0.1);
+    spacing: 6px;
+    padding: 4px;
+}
+QToolBar QToolButton {
+    background: transparent;
+    border: none;
+    color: #1A1A2E;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+QToolBar QToolButton:hover {
+    background: rgba(123, 97, 255, 0.1);
+    color: #7B61FF;
+}
+
+/* Notification styles with gradient accents */
+QWidget#notificationContainer {
+    background: rgba(255, 255, 255, 0.98);
+    border: 2px solid rgba(147, 112, 219, 0.15);
+    border-radius: 18px;
+}
+
+/* Notification accent borders */
+QWidget#notification[kind="success"] QWidget#notificationContainer { 
+    border-left: 4px solid #4CAF50;
+    background: rgba(255, 255, 255, 0.98);
+}
+QWidget#notification[kind="warning"] QWidget#notificationContainer { 
+    border-left: 4px solid #FF9800;
+    background: rgba(255, 255, 255, 0.98);
+}
+QWidget#notification[kind="error"] QWidget#notificationContainer { 
+    border-left: 4px solid #F44336;
+    background: rgba(255, 255, 255, 0.98);
+}
+
+QLabel#notificationTitle { 
+    font-weight: 700; 
+    color: #1A1A2E; 
+    font-size: 15px;
+    background: transparent;
+}
+QLabel#notificationSubtitle { 
+    color: #7B6B8F; 
+    font-size: 13px;
+    background: transparent;
+}
+QLabel#notificationIcon {
+    background: transparent;
+}
+
+QPushButton#notificationCloseBtn {
+    background: transparent;
+    border: none;
+    color: #C4B5D6;
+    border-radius: 10px;
+    font-size: 16px;
+}
+QPushButton#notificationCloseBtn:hover { 
+    background: rgba(0, 0, 0, 0.05); 
+    color: #7B61FF;
+}
+QPushButton#notificationActionBtn {
+    background: transparent;
+    border: none;
+    color: #7B61FF;
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+QPushButton#notificationActionBtn:hover { 
+    background: rgba(123, 97, 255, 0.1); 
+}
+
+/* Notification Center */
+QWidget#notificationCenter { 
+    background: transparent; 
+}
+
+/* Inline tooltip with gradient */
+QWidget#inlineToolTip {
+    background: #1A1A2E;
+    color: #FFFFFF;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+/* Modal dialog with flat effect */
+QDialog#modal {
+    background: #FFFFFF;
+    border: 2px solid rgba(255, 255, 255, 0.65);
+    border-radius: 24px;
+}
+QDialog#modal QLabel#modalTitle {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1A1A2E;
+}
+
+/* Calendar Month Label */
+QWidget#datePicker QLabel#calendarMonthLabel {
+    font-size: 16px;
+    font-weight: 700;
+    color: #7B61FF;
+    margin-top: 12px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Enhanced hover states */
+*:hover {
+    transition: all 0.2s ease;
+}
+
+/* Focus ring for accessibility */
+*:focus {
+    outline: 2px solid rgba(123, 97, 255, 0.4);
+    outline-offset: 2px;
+}

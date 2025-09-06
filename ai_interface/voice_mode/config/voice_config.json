@@ -1,0 +1,39 @@
+{
+  "audio": {
+    "sample_rate": 16000,
+    "chunk_size": 4096,
+    "channels": 1,
+    "format": "paInt16",
+    "input_device_index": null,
+    "preferred_device_keywords": ["macbook", "built-in", "internal", "micrófono", "microphone"],
+    "volume_threshold": 20.0,
+    "silence_threshold": 5.0
+  },
+  "wake_words": {
+    "enabled": true,
+    "patterns": [
+      "hey\\s+assistant?",
+      "hi\\s+assistant?",
+      "hello\\s+assistant?",
+      "the\\s+assistant?s?",
+      "hey\\s+assistant?s?"
+    ],
+    "case_sensitive": false,
+    "timeout_seconds": 30
+  },
+  "recognition": {
+    "model_name": "vosk-model-en-us-0.22-lgraph",
+    "partial_results": true,
+    "debug_mode": true
+  },
+  "tts": {
+    "voice_speed": 1.0,
+    "voice_pitch": 1.0,
+    "output_device_index": null
+  },
+  "ui": {
+    "show_volume_indicator": true,
+    "show_recognition_text": true,
+    "auto_hide_timeout": 10
+  }
+}

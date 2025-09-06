@@ -1,0 +1,77 @@
+Language,Model Name,Size,Download Link
+English,vosk-model-small-en-us-0.15,40M,https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip
+English,vosk-model-en-us-0.22,1.8G,https://alphacephei.com/vosk/models/vosk-model-en-us-0.22.zip
+English,vosk-model-en-us-0.22-lgraph,128M,https://alphacephei.com/vosk/models/vosk-model-en-us-0.22-lgraph.zip
+English,vosk-model-en-us-0.42-gigaspeech,2.3G,https://alphacephei.com/vosk/models/vosk-model-en-us-0.42-gigaspeech.zip
+English,vosk-model-en-us-daanzu-20200905,1.0G,https://alphacephei.com/vosk/models/vosk-model-en-us-daanzu-20200905.zip
+English,vosk-model-en-us-daanzu-20200905-lgraph,129M,https://alphacephei.com/vosk/models/vosk-model-en-us-daanzu-20200905-lgraph.zip
+English,vosk-model-en-us-librispeech-0.2,845M,https://alphacephei.com/vosk/models/vosk-model-en-us-librispeech-0.2.zip
+English,vosk-model-small-en-us-zamia-0.5,49M,https://alphacephei.com/vosk/models/vosk-model-small-en-us-zamia-0.5.zip
+English,vosk-model-en-us-aspire-0.2,1.4G,https://alphacephei.com/vosk/models/vosk-model-en-us-aspire-0.2.zip
+English,vosk-model-en-us-0.21,1.6G,https://alphacephei.com/vosk/models/vosk-model-en-us-0.21.zip
+Indian English,vosk-model-en-in-0.5,1G,https://alphacephei.com/vosk/models/vosk-model-en-in-0.5.zip
+Indian English,vosk-model-small-en-in-0.4,36M,https://alphacephei.com/vosk/models/vosk-model-small-en-in-0.4.zip
+Chinese,vosk-model-small-cn-0.22,42M,https://alphacephei.com/vosk/models/vosk-model-small-cn-0.22.zip
+Chinese,vosk-model-cn-0.22,1.3G,https://alphacephei.com/vosk/models/vosk-model-cn-0.22.zip
+Chinese,vosk-model-cn-kaldi-multicn-0.15,1.5G,https://alphacephei.com/vosk/models/vosk-model-cn-kaldi-multicn-0.15.zip
+Russian,vosk-model-ru-0.42,1.8G,https://alphacephei.com/vosk/models/vosk-model-ru-0.42.zip
+Russian,vosk-model-small-ru-0.22,45M,https://alphacephei.com/vosk/models/vosk-model-small-ru-0.22.zip
+Russian,vosk-model-ru-0.22,1.5G,https://alphacephei.com/vosk/models/vosk-model-ru-0.22.zip
+Russian,vosk-model-ru-0.10,2.5G,https://alphacephei.com/vosk/models/vosk-model-ru-0.10.zip
+French,vosk-model-small-fr-0.22,41M,https://alphacephei.com/vosk/models/vosk-model-small-fr-0.22.zip
+French,vosk-model-fr-0.22,1.4G,https://alphacephei.com/vosk/models/vosk-model-fr-0.22.zip
+French,vosk-model-small-fr-pguyot-0.3,39M,https://alphacephei.com/vosk/models/vosk-model-small-fr-pguyot-0.3.zip
+French,vosk-model-fr-0.6-linto-2.2.0,1.5G,https://alphacephei.com/vosk/models/vosk-model-fr-0.6-linto-2.2.0.zip
+German,vosk-model-de-0.21,1.9G,https://alphacephei.com/vosk/models/vosk-model-de-0.21.zip
+German,vosk-model-de-tuda-0.6-900k,4.4G,https://alphacephei.com/vosk/models/vosk-model-de-tuda-0.6-900k.zip
+German,vosk-model-small-de-zamia-0.3,49M,https://alphacephei.com/vosk/models/vosk-model-small-de-zamia-0.3.zip
+German,vosk-model-small-de-0.15,45M,https://alphacephei.com/vosk/models/vosk-model-small-de-0.15.zip
+Spanish,vosk-model-small-es-0.42,39M,https://alphacephei.com/vosk/models/vosk-model-small-es-0.42.zip
+Spanish,vosk-model-es-0.42,1.4G,https://alphacephei.com/vosk/models/vosk-model-es-0.42.zip
+Portuguese/Brazilian Portuguese,vosk-model-small-pt-0.3,31M,https://alphacephei.com/vosk/models/vosk-model-small-pt-0.3.zip
+Portuguese/Brazilian Portuguese,vosk-model-pt-fb-v0.1.1-20220516_2113,1.6G,https://alphacephei.com/vosk/models/vosk-model-pt-fb-v0.1.1-20220516_2113.zip
+Greek,vosk-model-el-gr-0.7,1.1G,https://alphacephei.com/vosk/models/vosk-model-el-gr-0.7.zip
+Turkish,vosk-model-small-tr-0.3,35M,https://alphacephei.com/vosk/models/vosk-model-small-tr-0.3.zip
+Vietnamese,vosk-model-small-vn-0.4,32M,https://alphacephei.com/vosk/models/vosk-model-small-vn-0.4.zip
+Vietnamese,vosk-model-vn-0.4,78M,https://alphacephei.com/vosk/models/vosk-model-vn-0.4.zip
+Italian,vosk-model-small-it-0.22,48M,https://alphacephei.com/vosk/models/vosk-model-small-it-0.22.zip
+Italian,vosk-model-it-0.22,1.2G,https://alphacephei.com/vosk/models/vosk-model-it-0.22.zip
+Dutch,vosk-model-small-nl-0.22,39M,https://alphacephei.com/vosk/models/vosk-model-small-nl-0.22.zip
+Dutch,vosk-model-nl-spraakherkenning-0.6,860M,https://alphacephei.com/vosk/models/vosk-model-nl-spraakherkenning-0.6.zip
+Dutch,vosk-model-nl-spraakherkenning-0.6-lgraph,100M,https://alphacephei.com/vosk/models/vosk-model-nl-spraakherkenning-0.6-lgraph.zip
+Catalan,vosk-model-small-ca-0.4,42M,https://alphacephei.com/vosk/models/vosk-model-small-ca-0.4.zip
+Arabic,vosk-model-ar-mgb2-0.4,318M,https://alphacephei.com/vosk/models/vosk-model-ar-mgb2-0.4.zip
+Arabic,vosk-model-ar-0.22-linto-1.1.0,1.3G,https://alphacephei.com/vosk/models/vosk-model-ar-0.22-linto-1.1.0.zip
+Arabic Tunisian,vosk-model-small-ar-tn-0.1-linto,158M,https://alphacephei.com/vosk/models/vosk-model-small-ar-tn-0.1-linto.zip
+Arabic Tunisian,vosk-model-ar-tn-0.1-linto,517M,https://alphacephei.com/vosk/models/vosk-model-ar-tn-0.1-linto.zip
+Farsi,vosk-model-fa-0.42,1.6G,https://alphacephei.com/vosk/models/vosk-model-fa-0.42.zip
+Farsi,vosk-model-small-fa-0.42,53M,https://alphacephei.com/vosk/models/vosk-model-small-fa-0.42.zip
+Farsi,vosk-model-fa-0.5,1G,https://alphacephei.com/vosk/models/vosk-model-fa-0.5.zip
+Farsi,vosk-model-small-fa-0.5,60M,https://alphacephei.com/vosk/models/vosk-model-small-fa-0.5.zip
+Filipino,vosk-model-tl-ph-generic-0.6,320M,https://alphacephei.com/vosk/models/vosk-model-tl-ph-generic-0.6.zip
+Ukrainian,vosk-model-small-uk-v3-nano,73M,https://alphacephei.com/vosk/models/vosk-model-small-uk-v3-nano.zip
+Ukrainian,vosk-model-small-uk-v3-small,133M,https://alphacephei.com/vosk/models/vosk-model-small-uk-v3-small.zip
+Ukrainian,vosk-model-uk-v3,343M,https://alphacephei.com/vosk/models/vosk-model-uk-v3.zip
+Ukrainian,vosk-model-uk-v3-lgraph,325M,https://alphacephei.com/vosk/models/vosk-model-uk-v3-lgraph.zip
+Kazakh,vosk-model-small-kz-0.15,42M,https://alphacephei.com/vosk/models/vosk-model-small-kz-0.15.zip
+Kazakh,vosk-model-kz-0.15,378M,https://alphacephei.com/vosk/models/vosk-model-kz-0.15.zip
+Swedish,vosk-model-small-sv-rhasspy-0.15,289M,https://alphacephei.com/vosk/models/vosk-model-small-sv-rhasspy-0.15.zip
+Japanese,vosk-model-small-ja-0.22,48M,https://alphacephei.com/vosk/models/vosk-model-small-ja-0.22.zip
+Japanese,vosk-model-ja-0.22,1Gb,https://alphacephei.com/vosk/models/vosk-model-ja-0.22.zip
+Esperanto,vosk-model-small-eo-0.42,42M,https://alphacephei.com/vosk/models/vosk-model-small-eo-0.42.zip
+Hindi,vosk-model-small-hi-0.22,42M,https://alphacephei.com/vosk/models/vosk-model-small-hi-0.22.zip
+Hindi,vosk-model-hi-0.22,1.5Gb,https://alphacephei.com/vosk/models/vosk-model-hi-0.22.zip
+Czech,vosk-model-small-cs-0.4-rhasspy,44M,https://alphacephei.com/vosk/models/vosk-model-small-cs-0.4-rhasspy.zip
+Polish,vosk-model-small-pl-0.22,50M,https://alphacephei.com/vosk/models/vosk-model-small-pl-0.22.zip
+Uzbek,vosk-model-small-uz-0.22,49M,https://alphacephei.com/vosk/models/vosk-model-small-uz-0.22.zip
+Korean,vosk-model-small-ko-0.22,82M,https://alphacephei.com/vosk/models/vosk-model-small-ko-0.22.zip
+Breton,vosk-model-br-0.8,70M,https://alphacephei.com/vosk/models/vosk-model-br-0.8.zip
+Gujarati,vosk-model-gu-0.42,700M,https://alphacephei.com/vosk/models/vosk-model-gu-0.42.zip
+Gujarati,vosk-model-small-gu-0.42,100M,https://alphacephei.com/vosk/models/vosk-model-small-gu-0.42.zip
+Tajik,vosk-model-tg-0.22,327M,https://alphacephei.com/vosk/models/vosk-model-tg-0.22.zip
+Tajik,vosk-model-small-tg-0.22,50M,https://alphacephei.com/vosk/models/vosk-model-small-tg-0.22.zip
+Telugu,vosk-model-small-te-0.42,58M,https://alphacephei.com/vosk/models/vosk-model-small-te-0.42.zip
+Speaker identification,vosk-model-spk-0.4,13M,https://alphacephei.com/vosk/models/vosk-model-spk-0.4.zip
+English (Punctuation),vosk-recasepunc-en-0.22,1.6G,https://alphacephei.com/vosk/models/vosk-recasepunc-en-0.22.zip
+Russian (Punctuation),vosk-recasepunc-ru-0.22,1.6G,https://alphacephei.com/vosk/models/vosk-recasepunc-ru-0.22.zip
+German (Punctuation),vosk-recasepunc-de-0.21,1.1G,https://alphacephei.com/vosk/models/vosk-recasepunc-de-0.21.zip

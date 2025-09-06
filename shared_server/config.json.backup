@@ -1,0 +1,158 @@
+{
+  "server": {
+    "base_port": 9000,
+    "max_apps": 10,
+    "timeout": 5.0,
+    "host": "localhost",
+    "auto_start_mcp": false
+  },
+  "apps": {
+    "radio_player": {
+      "port": 9999,
+      "description": "Radio Player Application",
+      "enabled": true,
+      "auto_start": false,
+      "executable_path": "./radio_player/main.py",
+      "working_directory": "./radio_player"
+    },
+    "browser": {
+      "port": 9002,
+      "description": "Browser Application",
+      "enabled": true,
+      "auto_start": false,
+      "executable_path": "./browser/main.py",
+      "working_directory": "./browser"
+    },
+    "word_editor": {
+      "port": 9003,
+      "description": "Word Editor Application",
+      "enabled": true,
+      "auto_start": false,
+      "executable_path": "./word_editor/main.py",
+      "working_directory": "./word_editor"
+    },
+    "words": {
+      "port": 8765,
+      "description": "Words Editor CLI Interface",
+      "enabled": true,
+      "auto_start": false,
+      "executable_path": "./words/main.py",
+      "working_directory": "./words"
+    }
+  },
+  "mcp_servers": {
+    "word_editor": {
+      "name": "Word Editor MCP Server",
+      "description": "MCP server for controlling the word editor application",
+      "path": "./MCP/word_editor/server.py",
+      "port": 8888,
+      "enabled": true,
+      "auto_start": false,
+      "capabilities": [
+        "text_operations",
+        "file_operations",
+        "cli_commands"
+      ],
+      "tools": [
+        "set_text",
+        "insert_text",
+        "append_text",
+        "get_text",
+        "open_file",
+        "save_file",
+        "get_file_info",
+        "send_cli_command",
+        "check_gui_status",
+        "get_available_commands"
+      ],
+      "process_id": 34593,
+      "restart_on_failure": true,
+      "max_restart_attempts": 3
+    },
+    "browser": {
+      "name": "Browser MCP Server",
+      "description": "MCP server for controlling the browser application",
+      "path": "./MCP/browser/server.py",
+      "port": 8889,
+      "enabled": true,
+      "auto_start": false,
+      "capabilities": [
+        "navigation",
+        "bookmarks",
+        "page_interaction",
+        "adblock_control"
+      ],
+      "tools": [
+        "open_url",
+        "navigate_back",
+        "navigate_forward",
+        "reload_page",
+        "add_bookmark",
+        "get_bookmarks",
+        "click_element",
+        "click_text",
+        "get_page_html",
+        "summarize_page",
+        "adblock_enable",
+        "adblock_disable",
+        "adblock_toggle",
+        "adblock_load_rules"
+      ],
+      "process_id": null,
+      "restart_on_failure": true,
+      "max_restart_attempts": 3
+    },
+    "radio_player": {
+      "name": "Radio Player MCP Server",
+      "description": "MCP server for controlling the radio player application",
+      "path": "./MCP/radio_player/server.py",
+      "port": 8890,
+      "enabled": true,
+      "auto_start": false,
+      "capabilities": [
+        "playback_control",
+        "search",
+        "station_management",
+        "volume_control"
+      ],
+      "tools": [
+        "play_station",
+        "stop_playback",
+        "pause_playback",
+        "resume_playback",
+        "search_stations",
+        "get_current_station",
+        "get_favorites",
+        "add_favorite",
+        "remove_favorite",
+        "set_volume",
+        "get_volume",
+        "get_playback_status"
+      ],
+      "process_id": null,
+      "restart_on_failure": true,
+      "max_restart_attempts": 3
+    }
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "./logs/shared_server.log",
+    "max_file_size": "10MB",
+    "backup_count": 5,
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "console_output": true
+  },
+  "security": {
+    "allowed_hosts": [
+      "localhost",
+      "127.0.0.1"
+    ],
+    "require_authentication": false,
+    "api_key": null
+  },
+  "monitoring": {
+    "health_check_interval": 30,
+    "enable_metrics": false,
+    "metrics_port": 9001
+  }
+}

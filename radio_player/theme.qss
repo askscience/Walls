@@ -1,0 +1,242 @@
+/* Radio Player Theme Stylesheet */
+
+/* Main Background Widget */
+.BackgroundWidget {
+    background: /* BACKGROUND_GRADIENT */;
+}
+
+/* Sidebar */
+QWidget[objectName="Sidebar"] {
+    background-color: /* SIDEBAR_BG */;
+    background: /* SIDEBAR_BG */;
+    border-right: 1px solid /* BORDER_COLOR */;
+}
+
+/* Force sidebar background */
+#Sidebar {
+    background-color: /* SIDEBAR_BG */;
+    background: /* SIDEBAR_BG */;
+}
+
+/* Content Area */
+.ContentArea {
+    background: transparent;
+}
+
+/* Modern Button */
+ModernButton {
+    background: transparent;
+    color: /* TEXT_PRIMARY */;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+ModernButton:hover {
+    background: /* BUTTON_HOVER */;
+}
+
+/* Station Card Play Overlay */
+.PlayOverlay {
+    color: white;
+    font-size: 32px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 25px;
+}
+
+/* Icon Styling */
+QLabel[objectName="IconLabel"] {
+    color: /* TEXT_PRIMARY */;
+}
+
+/* Sidebar Item Icons */
+.SidebarItem QLabel {
+    color: /* TEXT_PRIMARY */;
+}
+
+.SidebarItemActive QLabel {
+    color: /* TEXT_PRIMARY */;
+}
+
+/* Icon Button Styling */
+IconButton {
+    color: /* TEXT_PRIMARY */;
+}
+
+/* SVG Icon Color Filter */
+QWidget[class="icon-widget"] {
+    color: /* TEXT_PRIMARY */;
+}
+
+/* Station Card Name Label */
+.StationNameLabel {
+    color: white;
+    font-size: 13px;
+    font-weight: bold;
+    background: transparent;
+    padding: 4px 6px;
+    line-height: 1.2;
+}
+
+/* Station Card Info Label */
+.StationInfoLabel {
+    color: white;
+    font-size: 9px;
+    background: transparent;
+    padding: 2px 4px;
+    font-weight: 500;
+}
+
+/* Station Card Gradient Background */
+.StationCardGradient {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #667eea, stop:1 #764ba2);
+    border-radius: 12px;
+}
+
+/* Station Card Transparent Background */
+.StationCardTransparent {
+    background: transparent;
+    border-radius: 12px;
+}
+
+/* Menu Labels */
+.MenuLabel {
+    color: /* TEXT_PRIMARY */;
+    font-size: 12px;
+    padding-left: 20px;
+}
+
+/* Title Label */
+.TitleLabel {
+    color: /* TEXT_PRIMARY */;
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+/* Search Bar */
+.SearchBar {
+    background: /* SEARCH_BG */;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 14px;
+    color: /* TEXT_PRIMARY */;
+}
+
+/* Profile Widget */
+.ProfileWidget {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #667eea, stop:1 #764ba2);
+    border-radius: 20px;
+}
+
+/* Scroll Area */
+QScrollArea {
+    background: transparent;
+    border: none;
+}
+
+QScrollBar:vertical {
+    background: transparent;
+    width: 8px;
+}
+
+QScrollBar::handle:vertical {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+/* Player Bar */
+QWidget[objectName="PlayerBar"] {
+    background-color: /* PLAYERBAR_BG */;
+    background: /* PLAYERBAR_BG */;
+    border-top: 1px solid /* BORDER_COLOR */;
+}
+
+/* Force player bar background */
+#PlayerBar {
+    background-color: /* PLAYERBAR_BG */;
+    background: /* PLAYERBAR_BG */;
+}
+
+/* Album Art Default */
+.AlbumArtDefault {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #667eea, stop:1 #764ba2);
+    border-radius: 8px;
+}
+
+.AlbumArtTransparent {
+    background: transparent;
+}
+
+/* Track Name */
+.TrackName {
+    color: /* TEXT_PRIMARY */;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Artist Name */
+.ArtistName {
+    color: /* TEXT_SECONDARY */;
+    font-size: 12px;
+}
+
+/* Progress Slider */
+.ProgressSlider::groove:horizontal {
+    height: 4px;
+    background: /* SLIDER_TRACK */;
+    border-radius: 2px;
+}
+
+.ProgressSlider::handle:horizontal {
+    width: 12px;
+    height: 12px;
+    background: #667eea;
+    border-radius: 6px;
+    margin: -4px 0;
+}
+
+.ProgressSlider::sub-page:horizontal {
+    background: #667eea;
+    border-radius: 2px;
+}
+
+/* Time Labels */
+.TimeLabel {
+    color: /* TEXT_SECONDARY */;
+    font-size: 11px;
+}
+
+/* Volume Slider */
+.VolumeSlider::groove:horizontal {
+    height: 4px;
+    background: /* SLIDER_TRACK */;
+    border-radius: 2px;
+}
+
+.VolumeSlider::handle:horizontal {
+    width: 10px;
+    height: 10px;
+    background: #667eea;
+    border-radius: 5px;
+    margin: -3px 0;
+}
+
+.VolumeSlider::sub-page:horizontal {
+    background: #667eea;
+    border-radius: 2px;
+}
+
+/* Placeholder Message */
+.PlaceholderMessage {
+    color: /* TEXT_TERTIARY */;
+    font-size: 18px;
+    font-weight: 500;
+    padding: 50px;
+}

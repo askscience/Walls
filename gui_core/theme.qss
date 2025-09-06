@@ -1,0 +1,220 @@
+/* Minimalist Modern Theme - Ultra Clean & Compact */
+
+/* Base - Reduced font size and weights for compactness */
+QWidget {
+    background: #1a1a1a;
+    color: #ffffff;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui;
+    font-size: 13px;
+    font-weight: 400;
+    selection-background-color: #333333;
+    selection-color: #FFFFFF;
+}
+
+/* Flat containers - minimal borders */
+QFrame, QGroupBox {
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+}
+
+QTextEdit, QListView, QTreeView, QTableView, QAbstractItemView {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 4px 6px;
+    outline: none;
+}
+
+QTextEdit:focus, QListView:focus, QTreeView:focus, QTableView:focus {
+    border-color: #333333;
+}
+
+QToolTip {
+    background: #1F2937;
+    color: #F9FAFB;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+/* Ultra-thin ScrollBars */
+QScrollBar:vertical { background: transparent; width: 4px; margin: 0; }
+QScrollBar:horizontal { background: transparent; height: 4px; margin: 0; }
+QScrollBar::handle:vertical { background: #D1D5DB; min-height: 16px; border-radius: 2px; }
+QScrollBar::handle:horizontal { background: #D1D5DB; min-width: 16px; border-radius: 2px; }
+QScrollBar::handle:hover { background: #9CA3AF; }
+QScrollBar::add-line, QScrollBar::sub-line, QScrollBar::add-page, QScrollBar::sub-page { background: transparent; border: none; }
+
+/* Minimalist Buttons */
+QPushButton {
+    background: transparent;
+    color: #333333;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 13px;
+    min-height: 26px;
+}
+
+QPushButton:hover { background: rgba(51, 51, 51, 0.08); }
+QPushButton:pressed { background: rgba(51, 51, 51, 0.12); }
+QPushButton:disabled { color: #9CA3AF; background: transparent; }
+
+/* Primary button - flat color */
+QPushButton[variant="primary"] {
+    background: #333333;
+    color: #FFFFFF;
+    border: none;
+    padding: 4px 14px;
+    font-weight: 500;
+}
+QPushButton[variant="primary"]:hover { background: #2B2B2B; }
+QPushButton[variant="primary"]:pressed { background: #1F1F1F; }
+QPushButton[variant="primary"]:disabled { background: #E5E7EB; color: #9CA3AF; }
+
+/* Ghost button - ultra minimal */
+QPushButton[variant="outlined"], QPushButton#outlined {
+    background: transparent;
+    color: #333333;
+    border: 1px solid #333333;
+    font-weight: 500;
+}
+QPushButton[variant="outlined"]:hover, QPushButton#outlined:hover { background: rgba(51, 51, 51, 0.05); border-color: #2B2B2B; }
+
+/* Subtle button */
+QPushButton[variant="tonal"] { background: #F3F4F6; color: #4B5563; border: none; font-weight: 500; }
+QPushButton[variant="tonal"]:hover { background: #E5E7EB; }
+
+/* Minimalist Radio Buttons */
+QRadioButton { spacing: 6px; font-weight: 400; color: #4B5563; }
+QRadioButton::indicator { width: 14px; height: 14px; border-radius: 7px; border: 2px solid #D1D5DB; background: #FFFFFF; }
+QRadioButton::indicator:checked { background: #FFFFFF; border-color: #333333; }
+QRadioButton::indicator:checked::after { width: 6px; height: 6px; border-radius: 3px; background: #333333; margin: 4px; }
+QRadioButton:hover { color: #1F2937; }
+
+/* Minimalist CheckBoxes */
+QCheckBox { spacing: 6px; font-weight: 400; color: #4B5563; }
+QCheckBox::indicator { width: 14px; height: 14px; border-radius: 3px; border: 2px solid #D1D5DB; background: #FFFFFF; }
+QCheckBox::indicator:checked { background: #333333; border-color: #333333; image: none; }
+QCheckBox:hover { color: #1F2937; }
+
+/* Compact Line Edit */
+QLineEdit {
+    background: #FFFFFF;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 400;
+    min-height: 28px;
+}
+QLineEdit:focus { border-color: #333333; outline: none; }
+QLineEdit:hover { border-color: #9CA3AF; }
+
+/* Minimalist Slider */
+QSlider::groove:horizontal { height: 3px; border-radius: 2px; background: #E5E7EB; }
+QSlider::handle:horizontal { width: 12px; height: 12px; margin: -6px 0; border-radius: 6px; background: #333333; border: none; }
+QSlider::handle:horizontal:hover { background: #2B2B2B; width: 14px; height: 14px; margin: -7px 0; }
+QSlider::sub-page:horizontal { background: #333333; border-radius: 2px; }
+
+/* Compact ComboBox */
+QComboBox { background: #FFFFFF; border: 1px solid #D1D5DB; border-radius: 8px; padding: 4px 28px 4px 10px; font-weight: 400; min-height: 28px; }
+QComboBox:hover { border-color: #9CA3AF; }
+QComboBox:focus { border-color: #333333; outline: none; }
+QComboBox::drop-down { width: 20px; border: none; background: transparent; }
+QComboBox::down-arrow { image: none; width: 0; height: 0; border-left: 3px solid transparent; border-right: 3px solid transparent; border-top: 4px solid #6B7280; }
+QComboBox QAbstractItemView { background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; padding: 2px; selection-background-color: #F3F4F6; selection-color: #1F2937; }
+
+/* Flat Progress Bar */
+QProgressBar { background: #E5E7EB; border: none; border-radius: 2px; height: 3px; text-align: center; }
+QProgressBar::chunk { background: #333333; border-radius: 2px; }
+
+/* Minimalist Tabs - compact segmented look */
+QTabWidget::pane { border: none; background: transparent; margin-top: -1px; }
+QTabBar::tab { background: #F3F4F6; color: #6B7280; padding: 6px 10px; border: 1px solid transparent; border-radius: 8px; margin: 2px; font-weight: 500; }
+QTabBar::tab:selected { color: #FFFFFF; background: #333333; border: none; }
+QTabBar::tab:hover:!selected { color: #4B5563; background: #E5E7EB; }
+
+/* Realistic Toggle (uses SVG images) */
+/* Replaced by custom-painted Switch. Keep a minimal placeholder for alignment. */
+Switch { margin: 0px; padding: 0px; }
+
+/* Minimal Calendar */
+QCalendarWidget { background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 8px; }
+QCalendarWidget QToolButton { background: transparent; border: none; color: #6B7280; padding: 4px 8px; border-radius: 4px; font-weight: 500; }
+QCalendarWidget QToolButton:hover { background: #F3F4F6; color: #4B5563; }
+QCalendarWidget QTableView { outline: 0; background: transparent; gridline-color: transparent; }
+QCalendarWidget QAbstractItemView:enabled { selection-background-color: #333333; selection-color: #FFFFFF; background: transparent; }
+QCalendarWidget QAbstractItemView:disabled { color: #D1D5DB; }
+
+/* Minimal GroupBox */
+QGroupBox { border: 1px solid #E5E7EB; background: transparent; margin-top: 8px; border-radius: 6px; padding-top: 6px; }
+QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 4px; color: #6B7280; font-weight: 500; font-size: 12px; background: #FAFAFA; }
+
+/* Minimal Accordion */
+QWidget#accordion { background: transparent; }
+QWidget#accordionSection { background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 8px; }
+QWidget#accordionHeader { background: transparent; padding: 2px; }
+QWidget#accordionHeader QLabel#accordionTitle { font-weight: 500; font-size: 14px; color: #1F2937; font-family: "Mozilla Headline", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui; }
+QWidget#accordionBody { background: transparent; }
+QPushButton#accordionChevron { background: transparent; border: none; color: #6B7280; border-radius: 4px; font-size: 14px; }
+QPushButton#accordionChevron:hover { background: #F3F4F6; }
+
+/* Minimal Card */
+QWidget#card { background: transparent; }
+QFrame#cardContainer { background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 10px; }
+QLabel#cardTitle { font-weight: 600; color: #1F2937; font-size: 16px; font-family: "Mozilla Headline", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui; }
+QLabel#cardSubtitle { color: #6B7280; font-size: 13px; font-weight: 400; }
+QLabel#cardMedia { border-radius: 6px; }
+QWidget#cardActions QPushButton { background: transparent; border: none; color: #333333; padding: 4px 10px; border-radius: 6px; font-weight: 500; }
+QWidget#cardActions QPushButton:hover { background: rgba(51, 51, 51, 0.08); }
+
+/* Minimal Components - Consistent styling */
+
+/* Date Picker */
+QWidget#datePicker { background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 8px; }
+QWidget#datePicker QLabel#calendarHeadline { font-size: 18px; font-weight: 600; color: #1F2937; font-family: "Mozilla Headline", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui; }
+QWidget#datePicker QLabel#calendarMonthLabel { font-size: 14px; font-weight: 500; color: #6B7280; margin-top: 8px; margin-bottom: 4px; }
+QWidget#datePicker QCalendarWidget { border: none; background: transparent; }
+
+/* Breadcrumbs - compact, dark accent */
+QWidget#breadcrumbs { background: transparent; }
+QWidget#breadcrumbs QPushButton { background: transparent; border: none; color: #333333; padding: 2px 6px; border-radius: 6px; font-weight: 500; }
+QWidget#breadcrumbs QPushButton:hover { background: rgba(51, 51, 51, 0.08); }
+QWidget#breadcrumbs QLabel#separator { color: #D1D5DB; padding: 0 4px; font-weight: 400; }
+
+/* Pagination */
+QWidget#pagination QPushButton { background: #FFFFFF; border: 1px solid #E5E7EB; color: #6B7280; padding: 4px 8px; border-radius: 6px; font-weight: 500; margin: 0 2px; }
+QWidget#pagination QPushButton:hover { background: #F3F4F6; border-color: #D1D5DB; }
+QWidget#pagination QPushButton[current="true"] { background: #333333; color: #FFFFFF; border: none; }
+
+/* Minimal ToolBar */
+QToolBar { background: #FAFAFA; border-bottom: 1px solid #E5E7EB; spacing: 4px; padding: 2px; }
+QToolBar QToolButton { background: transparent; border: none; color: #4B5563; padding: 4px 8px; border-radius: 4px; font-weight: 500; }
+QToolBar QToolButton:hover { background: #F3F4F6; color: #1F2937; }
+
+/* Minimal Notifications */
+QWidget#notificationContainer { background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; }
+QWidget#notification[kind="success"] QWidget#notificationContainer { border-left: 2px solid #10B981; }
+QWidget#notification[kind="warning"] QWidget#notificationContainer { border-left: 2px solid #F59E0B; }
+QWidget#notification[kind="error"] QWidget#notificationContainer { border-left: 2px solid #EF4444; }
+QLabel#notificationTitle { font-weight: 500; color: #1F2937; font-size: 13px; background: transparent; font-family: "Mozilla Headline", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui; }
+QLabel#notificationSubtitle { color: #6B7280; font-size: 12px; background: transparent; }
+QPushButton#notificationCloseBtn { background: transparent; border: none; color: #9CA3AF; border-radius: 4px; font-size: 12px; padding: 2px 4px; }
+QPushButton#notificationCloseBtn:hover { background: #F3F4F6; color: #4B5563; }
+QPushButton#notificationActionBtn { background: transparent; border: none; color: #333333; padding: 4px 8px; border-radius: 4px; font-weight: 500; }
+QPushButton#notificationActionBtn:hover { background: rgba(51, 51, 51, 0.08); }
+
+/* Minimal Tooltip */
+QWidget#inlineToolTip { background: #1F2937; color: #F9FAFB; border: none; padding: 6px 10px; border-radius: 4px; font-size: 12px; }
+
+/* Minimal Modal */
+QDialog#modal { background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 8px; }
+QDialog#modal QLabel#modalTitle { font-size: 16px; font-weight: 600; color: #1F2937; font-family: "Mozilla Headline", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui; }
+
+/* Clean focus states */
+*:focus { outline: none; }
+QLineEdit:focus, QTextEdit:focus, QComboBox:focus { border-color: #333333; }

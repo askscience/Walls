@@ -1,0 +1,59 @@
+{
+  "server": {
+    "base_port": 9000,
+    "max_apps": 10,
+    "timeout": 600.0,
+    "host": "localhost",
+    "auto_start_mcp": true
+  },
+  "apps": {
+    "radio_player": {
+      "port": 9000,
+      "description": "Radio Player Application",
+      "enabled": true,
+      "auto_start": false,
+      "executable_path": "./radio_player/main.py",
+      "working_directory": "./radio_player"
+    },
+    "browser": {
+      "port": 9002,
+      "description": "Browser Application",
+      "enabled": true,
+      "auto_start": false,
+      "executable_path": "./browser/main.py",
+      "working_directory": "./browser"
+    },
+    "word_editor": {
+      "port": 9003,
+      "description": "Word Editor Application",
+      "enabled": true,
+      "auto_start": false,
+      "executable_path": "./word_editor/main.py",
+      "working_directory": "./word_editor"
+    },
+    "words": {
+      "port": 8765,
+      "description": "Words Editor CLI Interface",
+      "enabled": true,
+      "auto_start": false,
+      "executable_path": "./words/main.py",
+      "working_directory": "./words"
+    }
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "./logs/shared_server.log",
+    "max_file_size": "10MB",
+    "backup_count": 5,
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "console_output": true
+  },
+  "security": {
+    "allowed_hosts": [
+      "localhost",
+      "127.0.0.1"
+    ],
+    "require_authentication": false,
+    "api_key": null
+  }
+}

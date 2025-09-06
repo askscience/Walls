@@ -1,0 +1,16 @@
+[package]
+name = "word_core"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "word_core"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.21", features = ["extension-module"] }
+zip = "0.6"
+quick-xml = { version = "0.31", features = ["serialize"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+indexmap = "2.0"
