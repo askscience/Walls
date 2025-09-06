@@ -568,8 +568,7 @@ class UnifiedPanel(QWidget):
         self.ai_loader.setFixedSize(32, 32)
         # Ensure transparent background to prevent grey square appearance
         self.ai_loader.setStyleSheet("background-color: transparent; border: none;")
-        # Connect voice mode toggle signal
-        self.ai_loader.voice_mode_toggle_requested.connect(self.toggle_voice_mode)
+        # Note: Double-click functionality disabled - using toggle button instead
         input_layout.addWidget(self.ai_loader, 0, Qt.AlignVCenter)
         
         # Text input
@@ -608,6 +607,63 @@ class UnifiedPanel(QWidget):
         input_layout.addWidget(self.send_button, 0, Qt.AlignVCenter)
         
         bubble_layout.addLayout(input_layout)
+        
+        # Bottom button bar with voice toggle and settings
+        bottom_bar_layout = QHBoxLayout()
+        bottom_bar_layout.setContentsMargins(0, 8, 0, 0)
+        bottom_bar_layout.setSpacing(8)
+        
+        # Voice mode toggle button
+        self.voice_toggle_button = QPushButton()
+        self.voice_toggle_button.setFixedSize(24, 24)
+        microphone_icon = QIcon(os.path.join(ICONS_DIR, "microphone.svg"))
+        self.voice_toggle_button.setIcon(microphone_icon)
+        self.voice_toggle_button.setIconSize(QSize(16, 16))
+        self.voice_toggle_button.setToolTip("Toggle Voice Mode")
+        self.voice_toggle_button.setStyleSheet(
+            """
+            QPushButton {
+                border: none;
+                background: transparent;
+                padding: 0px;
+            }
+            QPushButton:hover {
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 12px;
+            }
+            QPushButton:checked {
+                background: rgba(70, 130, 180, 0.8);
+                border-radius: 12px;
+            }
+            """
+        )
+        self.voice_toggle_button.setCheckable(True)
+        bottom_bar_layout.addWidget(self.voice_toggle_button)
+        
+        # Settings button
+        self.settings_button = QPushButton()
+        self.settings_button.setFixedSize(24, 24)
+        gear_icon = QIcon(os.path.join(ICONS_DIR, "gear.svg"))
+        self.settings_button.setIcon(gear_icon)
+        self.settings_button.setIconSize(QSize(16, 16))
+        self.settings_button.setToolTip("Open Settings")
+        self.settings_button.setStyleSheet(
+            """
+            QPushButton {
+                border: none;
+                background: transparent;
+                padding: 0px;
+            }
+            QPushButton:hover {
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 12px;
+            }
+            """
+        )
+        bottom_bar_layout.addWidget(self.settings_button)
+        
+        bottom_bar_layout.addStretch()
+        bubble_layout.addLayout(bottom_bar_layout)
         
         # Add panels to splitter
         self.main_splitter.addWidget(self.chat_history_panel)
@@ -745,6 +801,13 @@ class UnifiedPanel(QWidget):
         self.new_chat_button.clicked.connect(self.handle_new_chat)
         self.history_toggle_button.clicked.connect(self.toggle_chat_history)
         self.chat_list.itemClicked.connect(self.handle_chat_selection)
+        
+        # Connect new bottom buttons
+        self.voice_toggle_button.clicked.connect(self.handle_voice_toggle)
+        self.settings_button.clicked.connect(self.open_settings)
+        
+        # Connect voice manager signals
+        self.voice_manager.voice_mode_stopped.connect(self.on_voice_mode_stopped)
     
     def handle_query_submit(self):
         """Handle when user submits a query."""
@@ -838,14 +901,16 @@ class UnifiedPanel(QWidget):
             traceback.print_exc()
     
     def start_voice_mode(self):
-        """Start voice mode when AI loader is double-clicked."""
+        """Start voice mode when toggle button is clicked."""
         print(f"[VOICE MODE DEBUG] start_voice_mode called")
         try:
             print(f"[VOICE MODE DEBUG] Calling voice_manager.start_voice_mode()")
             self.voice_manager.start_voice_mode()
-            print(f"[VOICE MODE DEBUG] Voice manager started, updating AI loader visual state")
+            print(f"[VOICE MODE DEBUG] Voice manager started, updating visual states")
             # Update AI loader visual state
             self.ai_loader.set_voice_mode_active(True)
+            # Update toggle button state
+            self.voice_toggle_button.setChecked(True)
             print(f"[VOICE MODE DEBUG] Voice mode started successfully")
         except Exception as e:
             print(f"[VOICE MODE DEBUG] Error starting voice mode: {e}")
@@ -856,9 +921,13 @@ class UnifiedPanel(QWidget):
         """Stop voice mode and return to normal interface."""
         print(f"[VOICE MODE DEBUG] stop_voice_mode called")
         try:
+            print("[UNIFIED PANEL DEBUG] Calling voice_manager.stop_voice_mode()...")
             self.voice_manager.stop_voice_mode()
+            print("[UNIFIED PANEL DEBUG] voice_manager.stop_voice_mode() completed")
             # Update AI loader visual state
             self.ai_loader.set_voice_mode_active(False)
+            # Update toggle button state
+            self.voice_toggle_button.setChecked(False)
             print(f"[VOICE MODE DEBUG] Voice mode stopped successfully")
         except Exception as e:
             print(f"[VOICE MODE DEBUG] Error stopping voice mode: {e}")
@@ -868,6 +937,56 @@ class UnifiedPanel(QWidget):
     def is_voice_mode_available(self) -> bool:
         """Check if voice mode is available."""
         return self.voice_manager.is_voice_mode_available()
+    
+    def on_voice_mode_stopped(self):
+        """Handle when voice mode is stopped from within the voice UI."""
+        print(f"[VOICE MODE DEBUG] on_voice_mode_stopped called")
+        try:
+            # Update AI loader visual state
+            self.ai_loader.set_voice_mode_active(False)
+            # Update toggle button state
+            self.voice_toggle_button.setChecked(False)
+            print(f"[VOICE MODE DEBUG] Voice mode UI state updated successfully")
+            
+            # Re-enable AI loader if it was disabled
+            if hasattr(self, 'ai_loader') and self.ai_loader:
+                print("[UNIFIED PANEL DEBUG] Re-enabling AI loader...")
+                self.ai_loader.setEnabled(True)
+                print("[UNIFIED PANEL DEBUG] AI loader re-enabled successfully")
+        except Exception as e:
+            print(f"[VOICE MODE DEBUG] Error updating voice mode UI state: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    def handle_voice_toggle(self):
+        """Handle voice toggle button click."""
+        print(f"[VOICE MODE DEBUG] handle_voice_toggle called, button checked: {self.voice_toggle_button.isChecked()}")
+        try:
+            if self.voice_toggle_button.isChecked():
+                print(f"[VOICE MODE DEBUG] Button checked, starting voice mode...")
+                self.start_voice_mode()
+            else:
+                print(f"[VOICE MODE DEBUG] Button unchecked, stopping voice mode...")
+                self.stop_voice_mode()
+        except Exception as e:
+            print(f"[VOICE MODE DEBUG] Error in handle_voice_toggle: {e}")
+            import traceback
+            traceback.print_exc()
+            # Reset button state on error
+            self.voice_toggle_button.setChecked(False)
+    
+    def open_settings(self):
+        """Open the settings interface."""
+        try:
+            print("[UNIFIED PANEL DEBUG] Settings button clicked")
+            # Import and show settings UI
+            from settings_ui.settings_window import SettingsWindow
+            settings_window = SettingsWindow(parent=self)
+            settings_window.show()
+        except ImportError as e:
+            print(f"[UNIFIED PANEL DEBUG] Settings UI not available: {e}")
+        except Exception as e:
+            print(f"[UNIFIED PANEL DEBUG] Error opening settings: {e}")
     
     def start_loading(self):
         """Start the AI loader animation and disable input."""

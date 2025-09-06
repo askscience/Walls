@@ -9,8 +9,8 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QFrame, QSizePolicy
 )
-from PySide6.QtCore import Qt, Signal, QTimer
-from PySide6.QtGui import QFont, QFontDatabase, QColor, QPalette
+from PySide6.QtCore import Qt, Signal, QTimer, QSize
+from PySide6.QtGui import QFont, QFontDatabase, QColor, QPalette, QIcon, QPixmap
 
 # Import gui_core components
 gui_core_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), 'gui_core')
@@ -128,14 +128,14 @@ class VoiceUI(QWidget):
         self.setWindowTitle("Voice Mode")
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         
-        # Main layout - position container in bottom left
+        # Main layout - position container in bottom left with reduced margins
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(20, 0, 0, 20)
+        main_layout.setContentsMargins(10, 0, 0, 10)
         main_layout.setAlignment(Qt.AlignBottom | Qt.AlignLeft)
         
-        # Voice container - smaller, more black translucent rectangle
+        # Voice container - taller to accommodate icons at bottom
         self.voice_container = QFrame()
-        self.voice_container.setFixedSize(280, 120)
+        self.voice_container.setFixedSize(280, 150)
         self.voice_container.setStyleSheet(
             """
             QFrame {
@@ -146,11 +146,18 @@ class VoiceUI(QWidget):
             """
         )
         
-        # Container layout - center everything
-        container_layout = QHBoxLayout(self.voice_container)
-        container_layout.setContentsMargins(20, 20, 20, 20)
-        container_layout.setSpacing(30)
-        container_layout.setAlignment(Qt.AlignCenter)
+        # Container layout - vertical to stack content and buttons
+        container_layout = QVBoxLayout(self.voice_container)
+        container_layout.setContentsMargins(20, 15, 20, 10)
+        container_layout.setSpacing(5)
+        
+        # Top section - horizontal layout for AI loader and soundwave
+        top_section = QWidget()
+        top_section.setStyleSheet("background: transparent;")
+        top_layout = QHBoxLayout(top_section)
+        top_layout.setContentsMargins(0, 0, 0, 0)
+        top_layout.setSpacing(30)
+        top_layout.setAlignment(Qt.AlignCenter)
         
         # Left side - AI Loader
         loader_widget = QWidget()
@@ -159,26 +166,102 @@ class VoiceUI(QWidget):
         loader_layout.setAlignment(Qt.AlignCenter)
         loader_layout.setSpacing(10)
         
-        # Use VoiceAiLoader for double-click functionality
+        # Use VoiceAiLoader (double-click functionality removed)
         from .voice_ai_loader import VoiceAiLoader
         self.ai_loader = VoiceAiLoader(animated=True, parent=self)
         self.ai_loader.setFixedSize(60, 60)
         # Remove any background styling from AI loader
         self.ai_loader.setStyleSheet("background: transparent; border: none;")
-        # Connect double-click to exit voice mode
-        self.ai_loader.voice_mode_toggle_requested.connect(self.exit_voice_mode)
         loader_layout.addWidget(self.ai_loader, alignment=Qt.AlignCenter)
         
-        # Remove status label completely - no text needed
-        
-        container_layout.addWidget(loader_widget)
+        top_layout.addWidget(loader_widget)
         
         # Right side - Soundwave visualization
         from .soundwave_widget import SoundwaveWidget
         self.soundwave_widget = SoundwaveWidget(self)
-        container_layout.addWidget(self.soundwave_widget, alignment=Qt.AlignCenter)
+        top_layout.addWidget(self.soundwave_widget, alignment=Qt.AlignCenter)
         
-        main_layout.addWidget(self.voice_container)
+        container_layout.addWidget(top_section)
+        
+        # Add spacer to push buttons to bottom
+        container_layout.addStretch()
+        
+        # Create a vertical layout for the voice container to add buttons at bottom
+        voice_container_wrapper = QWidget()
+        voice_container_wrapper.setStyleSheet("background: transparent;")  # Remove gray background
+        voice_wrapper_layout = QVBoxLayout(voice_container_wrapper)
+        voice_wrapper_layout.setContentsMargins(0, 0, 0, 0)
+        voice_wrapper_layout.setSpacing(10)
+        
+        voice_wrapper_layout.addWidget(self.voice_container)
+        
+        # Button bar at the bottom inside the voice container
+        button_bar_layout = QHBoxLayout()
+        button_bar_layout.setContentsMargins(0, 0, 0, 0)
+        button_bar_layout.setSpacing(8)
+        button_bar_layout.setAlignment(Qt.AlignCenter)
+        
+        # Text mode toggle button - switches back to unified panel
+        self.text_mode_button = QPushButton()
+        self.text_mode_button.setFixedSize(24, 24)
+        self.text_mode_button.setIcon(QIcon("/Users/eev/Nextcloud/Walls/gui_core/utils/icons/text.svg"))
+        self.text_mode_button.setIconSize(QSize(16, 16))
+        self.text_mode_button.setToolTip("Switch to Text Mode")
+        self.text_mode_button.setStyleSheet(
+            """
+            QPushButton {
+                border: none;
+                background: transparent;
+                padding: 0px;
+            }
+            QPushButton:hover {
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 12px;
+            }
+            QPushButton QIcon {
+                color: white;
+            }
+            """
+        )
+        
+        # Create white version of text icon
+        text_icon = QIcon()
+        text_pixmap = QPixmap("/Users/eev/Nextcloud/Walls/gui_core/utils/icons/text.svg")
+        # Convert to white by creating a white mask
+        white_pixmap = QPixmap(text_pixmap.size())
+        white_pixmap.fill(QColor(255, 255, 255))
+        white_pixmap.setMask(text_pixmap.createMaskFromColor(QColor(0, 0, 0), Qt.MaskInColor))
+        text_icon.addPixmap(white_pixmap)
+        self.text_mode_button.setIcon(text_icon)
+        self.text_mode_button.clicked.connect(self.exit_voice_mode)
+        button_bar_layout.addWidget(self.text_mode_button)
+        
+        # Settings button - small white icon style
+        self.settings_button = QPushButton()
+        self.settings_button.setFixedSize(24, 24)
+        self.settings_button.setIcon(QIcon("/Users/eev/Nextcloud/Walls/gui_core/utils/icons/gear.svg"))
+        self.settings_button.setIconSize(QSize(16, 16))
+        self.settings_button.setToolTip("Open Settings")
+        self.settings_button.setStyleSheet(
+            """
+            QPushButton {
+                border: none;
+                background: transparent;
+                padding: 0px;
+            }
+            QPushButton:hover {
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 12px;
+            }
+            """
+        )
+        self.settings_button.clicked.connect(self.open_settings)
+        button_bar_layout.addWidget(self.settings_button)
+        
+        # Add button bar to the container layout (inside the voice container at bottom)
+        container_layout.addLayout(button_bar_layout)
+        
+        main_layout.addWidget(voice_container_wrapper)
         
         # Instructions label (hidden by default, shown when needed)
         self.instructions_label = VoiceStatusLabel("", self)
@@ -224,6 +307,8 @@ class VoiceUI(QWidget):
         self.exit_button.hide()
         main_layout.addWidget(self.exit_button, alignment=Qt.AlignCenter)
         
+
+        
         # Set transparent background for main widget
         self.setStyleSheet(
             """
@@ -257,6 +342,9 @@ class VoiceUI(QWidget):
         self.rag_service.response_finished.connect(self.on_rag_response_finished)
         self.rag_service.error_occurred.connect(self.on_rag_error)
         self.rag_service.initialization_progress.connect(self.on_rag_initialization_progress)
+        
+        # Button connections
+        self.settings_button.clicked.connect(self.open_settings)
     
     def start_listening(self):
         """Start voice recognition."""
@@ -516,16 +604,64 @@ class VoiceUI(QWidget):
             self._pending_command = None
             self._process_rag_command(command)
     
+
+    
+    def open_settings(self):
+        """Open the settings interface."""
+        try:
+            print("[VOICE UI DEBUG] Settings button clicked")
+            # Import and show settings UI
+            from settings_ui.settings_window import SettingsWindow
+            settings_window = SettingsWindow(parent=self)
+            settings_window.show()
+        except ImportError as e:
+            print(f"[VOICE UI DEBUG] Settings UI not available: {e}")
+        except Exception as e:
+            print(f"[VOICE UI DEBUG] Error opening settings: {e}")
+    
     def show_exit_button(self):
         """Show the exit button."""
         self.exit_button.show()
     
     def exit_voice_mode(self):
         """Exit voice mode and return to normal interface."""
-        self.stop_listening()
-        self.kokoro_service.stop_generation()
-        self.audio_utils.stop_playback()
-        self.voice_mode_exit_requested.emit()
+        print(f"[VOICE UI DEBUG] exit_voice_mode called")
+        
+        try:
+            print(f"[VOICE UI DEBUG] Stopping listening...")
+            self.stop_listening()
+            print(f"[VOICE UI DEBUG] Listening stopped successfully")
+        except Exception as e:
+            print(f"[VOICE UI DEBUG] Error stopping listening in voice UI: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        try:
+            print(f"[VOICE UI DEBUG] Stopping kokoro service...")
+            self.kokoro_service.stop_generation()
+            print(f"[VOICE UI DEBUG] Kokoro service stopped successfully")
+        except Exception as e:
+            print(f"[VOICE UI DEBUG] Error stopping kokoro service in voice UI: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        try:
+            print(f"[VOICE UI DEBUG] Stopping audio playback...")
+            self.audio_utils.stop_playback()
+            print(f"[VOICE UI DEBUG] Audio playback stopped successfully")
+        except Exception as e:
+            print(f"[VOICE UI DEBUG] Error stopping audio playback in voice UI: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        try:
+            print(f"[VOICE UI DEBUG] Emitting voice mode exit signal...")
+            self.voice_mode_exit_requested.emit()
+            print(f"[VOICE UI DEBUG] Voice mode exit signal emitted successfully")
+        except Exception as e:
+            print(f"[VOICE UI DEBUG] Error emitting voice mode exit signal: {e}")
+            import traceback
+            traceback.print_exc()
     
     def keyPressEvent(self, event):
         """Handle key press events."""

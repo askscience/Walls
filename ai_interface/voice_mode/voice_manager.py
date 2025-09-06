@@ -52,6 +52,9 @@ class VoiceManager(QObject):
         
         # Parent widget reference for UI management
         self.parent_widget: Optional[QWidget] = None
+        
+        # Track originally visible widgets for proper restoration
+        self._originally_visible_widgets = []
     
     def set_parent_widget(self, parent_widget: QWidget):
         """Set the parent widget for UI management."""
@@ -107,35 +110,72 @@ class VoiceManager(QObject):
     
     def stop_voice_mode(self):
         """Stop voice mode and return to normal interface."""
+        print(f"[VOICE MANAGER DEBUG] stop_voice_mode called, is_voice_mode_active: {self.is_voice_mode_active}")
         if not self.is_voice_mode_active:
+            print(f"[VOICE MANAGER DEBUG] Voice mode not active, returning")
             return
         
         try:
+            print(f"[VOICE MANAGER DEBUG] Starting voice mode cleanup...")
             # Clean up voice UI - properly stop all voice services first
             if self.voice_ui:
-                # Call exit_voice_mode to properly stop VOSK service and other components
-                self.voice_ui.stop_listening()
-                self.voice_ui.kokoro_service.stop_generation()
-                self.voice_ui.audio_utils.stop_playback()
+                print(f"[VOICE MANAGER DEBUG] Voice UI exists, cleaning up services...")
+                try:
+                    # Call exit_voice_mode to properly stop VOSK service and other components
+                    self.voice_ui.stop_listening()
+                except Exception as e:
+                    print(f"Error stopping voice listening: {e}")
                 
-                # Now hide and delete the UI
-                self.voice_ui.hide()
-                self.voice_ui.deleteLater()
-                self.voice_ui = None
+                try:
+                    self.voice_ui.kokoro_service.stop_generation()
+                except Exception as e:
+                    print(f"Error stopping kokoro service: {e}")
+                
+                try:
+                    self.voice_ui.audio_utils.stop_playback()
+                except Exception as e:
+                    print(f"Error stopping audio playback: {e}")
+                
+                try:
+                    # Now hide and delete the UI
+                    self.voice_ui.hide()
+                    self.voice_ui.deleteLater()
+                    self.voice_ui = None
+                except Exception as e:
+                    print(f"Error cleaning up voice UI: {e}")
+                    # Force set to None even if cleanup failed
+                    self.voice_ui = None
             
             # Restore parent widget content
             if self.parent_widget:
-                self._show_parent_content()
+                print(f"[VOICE MANAGER DEBUG] Restoring parent widget content...")
+                try:
+                    self._show_parent_content()
+                    print(f"[VOICE MANAGER DEBUG] Parent content restored successfully")
+                except Exception as e:
+                    print(f"[VOICE MANAGER DEBUG] Error restoring parent content: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    # Clear the list even if restoration failed to prevent future issues
+                    self._originally_visible_widgets = []
             
+            print(f"[VOICE MANAGER DEBUG] Setting voice mode state to inactive...")
             self.is_voice_mode_active = False
             self.is_processing_request = False
+            
+            print(f"[VOICE MANAGER DEBUG] Emitting voice mode stopped signal...")
             self.voice_mode_stopped.emit()
             
-            print("Voice mode stopped - VOSK service and all components properly terminated")
+            print(f"[VOICE MANAGER DEBUG] Voice mode stopped - VOSK service and all components properly terminated")
             
         except Exception as e:
             error_msg = f"Error stopping voice mode: {str(e)}"
             print(error_msg)
+            # Ensure state is reset even if there was an error
+            self.is_voice_mode_active = False
+            self.is_processing_request = False
+            self.voice_ui = None
+            self._originally_visible_widgets = []
             self.error_occurred.emit(error_msg)
     
     def process_voice_input(self, user_text: str):
@@ -207,18 +247,44 @@ class VoiceManager(QObject):
     def _hide_parent_content(self):
         """Hide parent widget content when entering voice mode."""
         if self.parent_widget:
-            # Hide all child widgets except the voice UI
+            # Store originally visible widgets for proper restoration
+            self._originally_visible_widgets = []
+            
+            # Hide all direct child widgets except the voice UI
             for child in self.parent_widget.findChildren(QWidget):
                 if child != self.voice_ui and child.parent() == self.parent_widget:
-                    child.hide()
+                    # Only track and hide widgets that are currently visible
+                    if child.isVisible():
+                        self._originally_visible_widgets.append(child)
+                        child.hide()
+            
+            # Also hide the entire parent widget content to ensure no transparent elements show through
+            if hasattr(self.parent_widget, 'bubble_container'):
+                if self.parent_widget.bubble_container.isVisible():
+                    self._originally_visible_widgets.append(self.parent_widget.bubble_container)
+                    self.parent_widget.bubble_container.hide()
+            
+            # Hide any other main containers that might contain transparent UI elements
+            if hasattr(self.parent_widget, 'main_splitter'):
+                if self.parent_widget.main_splitter.isVisible():
+                    self._originally_visible_widgets.append(self.parent_widget.main_splitter)
+                    self.parent_widget.main_splitter.hide()
     
     def _show_parent_content(self):
         """Show parent widget content when exiting voice mode."""
         if self.parent_widget:
-            # Show all child widgets
-            for child in self.parent_widget.findChildren(QWidget):
-                if child != self.voice_ui and child.parent() == self.parent_widget:
-                    child.show()
+            # Only restore widgets that were originally visible
+            for widget in self._originally_visible_widgets:
+                try:
+                    # Check if widget still exists and is valid before showing
+                    if widget and not widget.isVisible():
+                        widget.show()
+                except RuntimeError:
+                    # Widget was deleted, skip it
+                    continue
+            
+            # Clear the list after restoration
+            self._originally_visible_widgets = []
     
     def is_voice_mode_available(self) -> bool:
         """Check if voice mode is available (all dependencies installed)."""

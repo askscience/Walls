@@ -1,8 +1,15 @@
 import os
+import sys
 from typing import List
 
 from PySide6.QtGui import QFontDatabase
-from .adaptive_theme_manager import apply_adaptive_theme
+
+# Add gui_core to path if not already there
+gui_core_path = os.path.dirname(__file__)
+if gui_core_path not in sys.path:
+    sys.path.insert(0, gui_core_path)
+
+from adaptive_theme_manager import apply_adaptive_theme
 
 BASE_DIR = os.path.dirname(__file__)
 

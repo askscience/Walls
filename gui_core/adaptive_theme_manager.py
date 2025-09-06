@@ -16,7 +16,15 @@ except ImportError:
     QWidgetsApplication = None
     QFontDatabase = None
 
-from .system_theme_detector import SystemThemeDetector, ThemeMode
+import sys
+import os
+
+# Add gui_core to path for imports
+gui_core_path = os.path.dirname(os.path.abspath(__file__))
+if gui_core_path not in sys.path:
+    sys.path.insert(0, gui_core_path)
+
+from system_theme_detector import SystemThemeDetector, ThemeMode
 
 
 class AdaptiveThemeManager(QObject if QObject != object else object):
