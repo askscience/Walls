@@ -1,5 +1,7 @@
 # Walls - AI Assistant Ecosystem
 
+> **A modular AI assistant ecosystem with voice/text interfaces, RAG capabilities, command execution, and integrated applications for radio streaming, web browsing, and document editing.**
+
 A comprehensive AI assistant system with voice and text interfaces, featuring RAG (Retrieval-Augmented Generation), command execution, and integrated applications.
 
 ## 🌟 Overview
