@@ -1,0 +1,42 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."],
+      "env": {
+        "MCP_LOG_LEVEL": "ERROR"
+      }
+    },
+    "word_editor": {
+      "command": "python",
+      "args": ["MCP/word_editor/server.py"],
+      "env": {
+        "MCP_LOG_LEVEL": "ERROR"
+      }
+    },
+    "browser": {
+      "command": "python",
+      "args": ["MCP/browser/server.py"],
+      "env": {
+        "MCP_LOG_LEVEL": "ERROR",
+        "PYTHONPATH": "MCP/browser"
+      }
+    },
+    "radio_player": {
+      "command": "python",
+      "args": ["MCP/radio_player/server.py"],
+      "env": {
+        "MCP_LOG_LEVEL": "ERROR",
+        "PYTHONPATH": "MCP/radio_player"
+      }
+    },
+    "rag": {
+      "command": "python",
+      "args": ["MCP/rag/server.py"],
+      "env": {
+        "MCP_LOG_LEVEL": "ERROR",
+        "PYTHONPATH": "MCP/rag"
+      }
+    }
+  }
+}
