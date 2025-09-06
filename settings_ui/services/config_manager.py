@@ -17,10 +17,10 @@ class ConfigManager(QObject):
         self.base_path = Path(base_path) if base_path else Path.cwd()
         self._configs = {}
         self._config_paths = {
-            'app': os.path.join(self.base_path, 'shared_server', 'APP_config.json'),
-            'mcp': os.path.join(self.base_path, 'shared_server', 'MCP_config.json'),
-            'rag': os.path.join(self.base_path, 'rag', 'config.json'),
-            'voice': os.path.join(self.base_path, 'ai_interface', 'voice_mode', 'config', 'voice_config.json')
+            'app': self.base_path / 'shared_server' / 'APP_config.json',
+            'mcp': self.base_path / 'shared_server' / 'MCP_config.json',
+            'rag': self.base_path / 'rag' / 'config.json',
+            'voice': self.base_path / 'ai_interface' / 'voice_mode' / 'config' / 'voice_config.json'
         }
     
     def load_config(self, config_name: str) -> Optional[Dict[str, Any]]:
