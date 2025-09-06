@@ -17,10 +17,10 @@ class ConfigManager(QObject):
         self.base_path = Path(base_path) if base_path else Path.cwd()
         self._configs = {}
         self._config_paths = {
-            'app': self.base_path / 'shared_server' / 'APP_config.json',
-            'mcp': self.base_path / 'shared_server' / 'MCP_config.json',
-            'rag': self.base_path / 'rag' / 'config.json',
-            'voice': self.base_path / 'ai_interface' / 'voice_mode' / 'config' / 'voice_config.json'
+            'app': os.path.join(self.base_path, 'shared_server', 'APP_config.json'),
+            'mcp': os.path.join(self.base_path, 'shared_server', 'MCP_config.json'),
+            'rag': os.path.join(self.base_path, 'rag', 'config.json'),
+            'voice': os.path.join(self.base_path, 'ai_interface', 'voice_mode', 'config', 'voice_config.json')
         }
     
     def load_config(self, config_name: str) -> Optional[Dict[str, Any]]:
@@ -106,7 +106,7 @@ class ConfigManager(QObject):
                         return False, f"Missing required key: {key}"
             
             elif config_name == 'voice':
-                required_keys = ['audio', 'recognition']
+                required_keys = ['audio_devices', 'speech_recognition', 'text_to_speech', 'ui']
                 for key in required_keys:
                     if key not in config_data:
                         return False, f"Missing required key: {key}"

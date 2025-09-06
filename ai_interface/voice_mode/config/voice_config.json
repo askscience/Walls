@@ -5,10 +5,18 @@
   },
   "speech_recognition": {
     "enabled": false,
-    "engine": "Google Speech Recognition"
+    "engine": "vosk",
+    "vosk_model": "vosk-model-small-en-us-0.15",
+    "language": "English"
   },
   "text_to_speech": {
     "enabled": false,
-    "engine": "System Default"
+    "engine": "kokoro",
+    "voice": "af_heart",
+    "lang_code": "a"
+  },
+  "ui": {
+    "show_waveform": true,
+    "auto_start_listening": false
   }
 }

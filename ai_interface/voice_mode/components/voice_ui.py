@@ -204,7 +204,10 @@ class VoiceUI(QWidget):
         # Text mode toggle button - switches back to unified panel
         self.text_mode_button = QPushButton()
         self.text_mode_button.setFixedSize(24, 24)
-        self.text_mode_button.setIcon(QIcon("/Users/eev/Nextcloud/Walls/gui_core/utils/icons/text.svg"))
+        # Get the project root directory (4 levels up from this file)
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+        text_icon_path = os.path.join(project_root, 'gui_core', 'utils', 'icons', 'text.svg')
+        self.text_mode_button.setIcon(QIcon(text_icon_path))
         self.text_mode_button.setIconSize(QSize(16, 16))
         self.text_mode_button.setToolTip("Switch to Text Mode")
         self.text_mode_button.setStyleSheet(
@@ -226,7 +229,7 @@ class VoiceUI(QWidget):
         
         # Create white version of text icon
         text_icon = QIcon()
-        text_pixmap = QPixmap("/Users/eev/Nextcloud/Walls/gui_core/utils/icons/text.svg")
+        text_pixmap = QPixmap(text_icon_path)
         # Convert to white by creating a white mask
         white_pixmap = QPixmap(text_pixmap.size())
         white_pixmap.fill(QColor(255, 255, 255))
@@ -239,7 +242,8 @@ class VoiceUI(QWidget):
         # Settings button - small white icon style
         self.settings_button = QPushButton()
         self.settings_button.setFixedSize(24, 24)
-        self.settings_button.setIcon(QIcon("/Users/eev/Nextcloud/Walls/gui_core/utils/icons/gear.svg"))
+        gear_icon_path = os.path.join(project_root, 'gui_core', 'utils', 'icons', 'gear.svg')
+        self.settings_button.setIcon(QIcon(gear_icon_path))
         self.settings_button.setIconSize(QSize(16, 16))
         self.settings_button.setToolTip("Open Settings")
         self.settings_button.setStyleSheet(

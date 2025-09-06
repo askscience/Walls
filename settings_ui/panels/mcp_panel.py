@@ -7,7 +7,7 @@ from typing import Dict, Any
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QScrollArea, QLabel, QFrame,
-    QGridLayout, QSpacerItem, QSizePolicy
+    QGridLayout, QSpacerItem, QSizePolicy, QGroupBox
 )
 from PySide6.QtCore import Signal, Qt
 from PySide6.QtGui import QIcon
@@ -20,19 +20,20 @@ from gui_core.components.cards.widgets import Card
 from gui_core.components.line_edit.widgets import LineEdit
 from gui_core.components.button.widgets import PrimaryButton
 from gui_core.components.switch.widgets import Switch
-from gui_core.components.accordion.widgets import Accordion
 from gui_core.components.checkbox.widgets import CheckBox
+from gui_core.components.combo_box.widgets import ComboBox
+from gui_core.components.slider.widgets import Slider
 
 
 class MCPPanel(QWidget):
-    """Modern MCP servers configuration panel."""
+    """Modern MCP server configuration panel for MCP_config.json."""
     
     config_changed = Signal(dict)
     
     def __init__(self, parent=None):
         super().__init__(parent)
         self.config_data = {}
-        self.server_widgets = {}
+        self.widgets = {}
         self.setup_ui()
     
     def setup_ui(self):
@@ -52,355 +53,378 @@ class MCPPanel(QWidget):
         content_layout.setContentsMargins(0, 0, 16, 0)  # Right margin for scrollbar
         content_layout.setSpacing(20)
         
-        # Overview card
-        overview_card = self.create_overview_card()
-        content_layout.addWidget(overview_card)
-        
-        # MCP Servers configuration
+        # MCP Servers card
         servers_card = self.create_servers_card()
         content_layout.addWidget(servers_card)
         
-        # Global settings card
-        global_card = self.create_global_settings_card()
-        content_layout.addWidget(global_card)
+        # Logging settings card
+        logging_card = self.create_logging_card()
+        content_layout.addWidget(logging_card)
         
-        # Actions card
-        actions_card = self.create_actions_card()
-        content_layout.addWidget(actions_card)
+        # Monitoring settings card
+        monitoring_card = self.create_monitoring_card()
+        content_layout.addWidget(monitoring_card)
         
         content_layout.addStretch()
         
         scroll.setWidget(content_widget)
         layout.addWidget(scroll)
     
-    def create_overview_card(self):
-        """Create overview information card."""
-        card = Card("MCP Server Configuration", "Manage Model Context Protocol server connections")
-        
-        # Add status indicators
-        status_layout = QHBoxLayout()
-        
-        # Active servers count
-        self.active_count_label = QLabel("0 Active Servers")
-        self.active_count_label.setObjectName("statusLabel")
-        status_layout.addWidget(self.active_count_label)
-        
-        status_layout.addStretch()
-        
-        # Connection status
-        self.connection_status = QLabel("● Disconnected")
-        self.connection_status.setObjectName("connectionIndicator")
-        status_layout.addWidget(self.connection_status)
-        
-        status_widget = QWidget()
-        status_widget.setLayout(status_layout)
-        card.addWidget(status_widget)
-        return card
-    
     def create_servers_card(self):
-        """Create servers configuration card with accordion."""
-        card = Card("Server Configurations")
+        """Create MCP servers configuration card matching MCP_config.json structure."""
+        card = Card("MCP Servers Configuration", "Configure individual MCP servers")
         
-        # Create accordion for server configurations
-        self.servers_accordion = Accordion()
+        servers_layout = QVBoxLayout()
+        servers_layout.setSpacing(16)
         
-        # Add default server configurations
-        self.add_server_section("Browser MCP", "browser", {
-            "command": "python",
-            "args": ["server.py"],
-            "cwd": "MCP/browser",
-            "enabled": True,
-            "auto_start": True
-        })
+        # Word Editor Server
+        word_frame = QFrame()
+        word_frame.setFrameStyle(QFrame.Shape.Box)
+        word_layout = QGridLayout(word_frame)
         
-        self.add_server_section("Word Editor MCP", "word_editor", {
-            "command": "python",
-            "args": ["server.py"],
-            "cwd": "MCP/word_editor",
-            "enabled": True,
-            "auto_start": False
-        })
+        word_layout.addWidget(QLabel("Word Editor MCP Server"), 0, 0, 1, 2)
         
-        self.add_server_section("RAG MCP", "rag", {
-            "command": "python",
-            "args": ["server.py"],
-            "cwd": "MCP/rag",
-            "enabled": False,
-            "auto_start": False
-        })
+        word_layout.addWidget(QLabel("Port:"), 1, 0)
+        self.widgets['word_port'] = LineEdit()
+        self.widgets['word_port'].setPlaceholderText("8888")
+        self.widgets['word_port'].textChanged.connect(self.on_config_changed)
+        word_layout.addWidget(self.widgets['word_port'], 1, 1)
         
-        self.add_server_section("Radio Player MCP", "radio_player", {
-            "command": "python",
-            "args": ["server.py"],
-            "cwd": "MCP/radio_player",
-            "enabled": False,
-            "auto_start": False
-        })
+        word_layout.addWidget(QLabel("Enabled:"), 2, 0)
+        self.widgets['word_enabled'] = Switch()
+        self.widgets['word_enabled'].toggled.connect(self.on_config_changed)
+        word_layout.addWidget(self.widgets['word_enabled'], 2, 1)
         
-        card.addWidget(self.servers_accordion)
+        word_layout.addWidget(QLabel("Auto Start:"), 3, 0)
+        self.widgets['word_auto_start'] = Switch()
+        self.widgets['word_auto_start'].toggled.connect(self.on_config_changed)
+        word_layout.addWidget(self.widgets['word_auto_start'], 3, 1)
         
-        # Add new server button
-        add_button = PrimaryButton("Add New Server")
-        add_button.clicked.connect(self.add_new_server)
-        card.addWidget(add_button)
+        word_layout.addWidget(QLabel("Restart on Failure:"), 4, 0)
+        self.widgets['word_restart_on_failure'] = Switch()
+        self.widgets['word_restart_on_failure'].toggled.connect(self.on_config_changed)
+        word_layout.addWidget(self.widgets['word_restart_on_failure'], 4, 1)
         
+        word_layout.addWidget(QLabel("Max Restart Attempts:"), 5, 0)
+        self.widgets['word_max_restart'] = LineEdit()
+        self.widgets['word_max_restart'].setPlaceholderText("3")
+        self.widgets['word_max_restart'].textChanged.connect(self.on_config_changed)
+        word_layout.addWidget(self.widgets['word_max_restart'], 5, 1)
+        
+        servers_layout.addWidget(word_frame)
+        
+        # Browser Server
+        browser_frame = QFrame()
+        browser_frame.setFrameStyle(QFrame.Shape.Box)
+        browser_layout = QGridLayout(browser_frame)
+        
+        browser_layout.addWidget(QLabel("Browser MCP Server"), 0, 0, 1, 2)
+        
+        browser_layout.addWidget(QLabel("Port:"), 1, 0)
+        self.widgets['browser_port'] = LineEdit()
+        self.widgets['browser_port'].setPlaceholderText("8889")
+        self.widgets['browser_port'].textChanged.connect(self.on_config_changed)
+        browser_layout.addWidget(self.widgets['browser_port'], 1, 1)
+        
+        browser_layout.addWidget(QLabel("Enabled:"), 2, 0)
+        self.widgets['browser_enabled'] = Switch()
+        self.widgets['browser_enabled'].toggled.connect(self.on_config_changed)
+        browser_layout.addWidget(self.widgets['browser_enabled'], 2, 1)
+        
+        browser_layout.addWidget(QLabel("Auto Start:"), 3, 0)
+        self.widgets['browser_auto_start'] = Switch()
+        self.widgets['browser_auto_start'].toggled.connect(self.on_config_changed)
+        browser_layout.addWidget(self.widgets['browser_auto_start'], 3, 1)
+        
+        browser_layout.addWidget(QLabel("Restart on Failure:"), 4, 0)
+        self.widgets['browser_restart_on_failure'] = Switch()
+        self.widgets['browser_restart_on_failure'].toggled.connect(self.on_config_changed)
+        browser_layout.addWidget(self.widgets['browser_restart_on_failure'], 4, 1)
+        
+        browser_layout.addWidget(QLabel("Max Restart Attempts:"), 5, 0)
+        self.widgets['browser_max_restart'] = LineEdit()
+        self.widgets['browser_max_restart'].setPlaceholderText("3")
+        self.widgets['browser_max_restart'].textChanged.connect(self.on_config_changed)
+        browser_layout.addWidget(self.widgets['browser_max_restart'], 5, 1)
+        
+        servers_layout.addWidget(browser_frame)
+        
+        # Radio Player Server
+        radio_frame = QFrame()
+        radio_frame.setFrameStyle(QFrame.Shape.Box)
+        radio_layout = QGridLayout(radio_frame)
+        
+        radio_layout.addWidget(QLabel("Radio Player MCP Server"), 0, 0, 1, 2)
+        
+        radio_layout.addWidget(QLabel("Port:"), 1, 0)
+        self.widgets['radio_port'] = LineEdit()
+        self.widgets['radio_port'].setPlaceholderText("8890")
+        self.widgets['radio_port'].textChanged.connect(self.on_config_changed)
+        radio_layout.addWidget(self.widgets['radio_port'], 1, 1)
+        
+        radio_layout.addWidget(QLabel("Enabled:"), 2, 0)
+        self.widgets['radio_enabled'] = Switch()
+        self.widgets['radio_enabled'].toggled.connect(self.on_config_changed)
+        radio_layout.addWidget(self.widgets['radio_enabled'], 2, 1)
+        
+        radio_layout.addWidget(QLabel("Auto Start:"), 3, 0)
+        self.widgets['radio_auto_start'] = Switch()
+        self.widgets['radio_auto_start'].toggled.connect(self.on_config_changed)
+        radio_layout.addWidget(self.widgets['radio_auto_start'], 3, 1)
+        
+        radio_layout.addWidget(QLabel("Restart on Failure:"), 4, 0)
+        self.widgets['radio_restart_on_failure'] = Switch()
+        self.widgets['radio_restart_on_failure'].toggled.connect(self.on_config_changed)
+        radio_layout.addWidget(self.widgets['radio_restart_on_failure'], 4, 1)
+        
+        radio_layout.addWidget(QLabel("Max Restart Attempts:"), 5, 0)
+        self.widgets['radio_max_restart'] = LineEdit()
+        self.widgets['radio_max_restart'].setPlaceholderText("3")
+        self.widgets['radio_max_restart'].textChanged.connect(self.on_config_changed)
+        radio_layout.addWidget(self.widgets['radio_max_restart'], 5, 1)
+        
+        servers_layout.addWidget(radio_frame)
+        
+        # RAG Server
+        rag_frame = QFrame()
+        rag_frame.setFrameStyle(QFrame.Shape.Box)
+        rag_layout = QGridLayout(rag_frame)
+        
+        rag_layout.addWidget(QLabel("RAG MCP Server"), 0, 0, 1, 2)
+        
+        rag_layout.addWidget(QLabel("Port:"), 1, 0)
+        self.widgets['rag_port'] = LineEdit()
+        self.widgets['rag_port'].setPlaceholderText("8891")
+        self.widgets['rag_port'].textChanged.connect(self.on_config_changed)
+        rag_layout.addWidget(self.widgets['rag_port'], 1, 1)
+        
+        rag_layout.addWidget(QLabel("Enabled:"), 2, 0)
+        self.widgets['rag_enabled'] = Switch()
+        self.widgets['rag_enabled'].toggled.connect(self.on_config_changed)
+        rag_layout.addWidget(self.widgets['rag_enabled'], 2, 1)
+        
+        rag_layout.addWidget(QLabel("Auto Start:"), 3, 0)
+        self.widgets['rag_auto_start'] = Switch()
+        self.widgets['rag_auto_start'].toggled.connect(self.on_config_changed)
+        rag_layout.addWidget(self.widgets['rag_auto_start'], 3, 1)
+        
+        rag_layout.addWidget(QLabel("Restart on Failure:"), 4, 0)
+        self.widgets['rag_restart_on_failure'] = Switch()
+        self.widgets['rag_restart_on_failure'].toggled.connect(self.on_config_changed)
+        rag_layout.addWidget(self.widgets['rag_restart_on_failure'], 4, 1)
+        
+        rag_layout.addWidget(QLabel("Max Restart Attempts:"), 5, 0)
+        self.widgets['rag_max_restart'] = LineEdit()
+        self.widgets['rag_max_restart'].setPlaceholderText("3")
+        self.widgets['rag_max_restart'].textChanged.connect(self.on_config_changed)
+        rag_layout.addWidget(self.widgets['rag_max_restart'], 5, 1)
+        
+        servers_layout.addWidget(rag_frame)
+        
+        servers_widget = QWidget()
+        servers_widget.setLayout(servers_layout)
+        card.addWidget(servers_widget)
         return card
     
-    def add_server_section(self, title, server_id, config):
-        """Add a server configuration section to the accordion."""
-        section_widget = QWidget()
-        layout = QVBoxLayout(section_widget)
-        layout.setContentsMargins(16, 16, 16, 16)
-        layout.setSpacing(12)
+    def create_logging_card(self):
+        """Create logging settings card matching MCP_config.json structure."""
+        card = Card("Logging Configuration", "Configure MCP servers logging settings")
         
-        # Server enabled switch
-        enabled_layout = QHBoxLayout()
-        enabled_switch = Switch("Enable Server")
-        enabled_switch.setChecked(config.get("enabled", False))
-        enabled_switch.toggled.connect(lambda checked: self.update_server_config(server_id, "enabled", checked))
-        enabled_layout.addWidget(enabled_switch)
-        enabled_layout.addStretch()
-        layout.addLayout(enabled_layout)
+        logging_layout = QGridLayout()
+        logging_layout.setSpacing(12)
         
-        # Auto-start switch
-        autostart_layout = QHBoxLayout()
-        autostart_switch = Switch("Auto-start with application")
-        autostart_switch.setChecked(config.get("auto_start", False))
-        autostart_switch.toggled.connect(lambda checked: self.update_server_config(server_id, "auto_start", checked))
-        autostart_layout.addWidget(autostart_switch)
-        autostart_layout.addStretch()
-        layout.addLayout(autostart_layout)
+        # Log level
+        logging_layout.addWidget(QLabel("Log Level:"), 0, 0)
+        self.widgets['log_level'] = ComboBox()
+        self.widgets['log_level'].addItems(["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"])
+        self.widgets['log_level'].currentTextChanged.connect(self.on_config_changed)
+        logging_layout.addWidget(self.widgets['log_level'], 0, 1)
         
-        # Command configuration
-        cmd_label = QLabel("Command:")
-        cmd_label.setObjectName("fieldLabel")
-        layout.addWidget(cmd_label)
+        # Log file
+        logging_layout.addWidget(QLabel("Log File:"), 1, 0)
+        self.widgets['log_file'] = LineEdit()
+        self.widgets['log_file'].setPlaceholderText("./logs/mcp_servers.log")
+        self.widgets['log_file'].textChanged.connect(self.on_config_changed)
+        logging_layout.addWidget(self.widgets['log_file'], 1, 1)
         
-        command_edit = LineEdit(config.get("command", ""))
-        command_edit.textChanged.connect(lambda text: self.update_server_config(server_id, "command", text))
-        layout.addWidget(command_edit)
+        # Max file size
+        logging_layout.addWidget(QLabel("Max File Size:"), 2, 0)
+        self.widgets['max_file_size'] = LineEdit()
+        self.widgets['max_file_size'].setPlaceholderText("10MB")
+        self.widgets['max_file_size'].textChanged.connect(self.on_config_changed)
+        logging_layout.addWidget(self.widgets['max_file_size'], 2, 1)
         
-        # Arguments configuration
-        args_label = QLabel("Arguments (one per line):")
-        args_label.setObjectName("fieldLabel")
-        layout.addWidget(args_label)
+        # Backup count
+        logging_layout.addWidget(QLabel("Backup Count:"), 3, 0)
+        self.widgets['backup_count'] = LineEdit()
+        self.widgets['backup_count'].setPlaceholderText("5")
+        self.widgets['backup_count'].textChanged.connect(self.on_config_changed)
+        logging_layout.addWidget(self.widgets['backup_count'], 3, 1)
         
-        args_edit = LineEdit(", ".join(config.get("args", [])))
-        args_edit.textChanged.connect(lambda text: self.update_server_config(server_id, "args", text.split(", ") if text else []))
-        layout.addWidget(args_edit)
+        # Console output
+        logging_layout.addWidget(QLabel("Console Output:"), 4, 0)
+        self.widgets['console_output'] = Switch()
+        self.widgets['console_output'].toggled.connect(self.on_config_changed)
+        logging_layout.addWidget(self.widgets['console_output'], 4, 1)
         
-        # Working directory
-        cwd_label = QLabel("Working Directory:")
-        cwd_label.setObjectName("fieldLabel")
-        layout.addWidget(cwd_label)
+        logging_widget = QWidget()
+        logging_widget.setLayout(logging_layout)
+        card.addWidget(logging_widget)
+        return card
+    
+    def create_monitoring_card(self):
+        """Create monitoring settings card matching MCP_config.json structure."""
+        card = Card("Monitoring Configuration", "Configure MCP servers monitoring settings")
         
-        cwd_edit = LineEdit(config.get("cwd", ""))
-        cwd_edit.textChanged.connect(lambda text: self.update_server_config(server_id, "cwd", text))
-        layout.addWidget(cwd_edit)
+        monitoring_layout = QGridLayout()
+        monitoring_layout.setSpacing(12)
         
-        # Environment variables section
-        env_label = QLabel("Environment Variables:")
-        env_label.setObjectName("fieldLabel")
-        layout.addWidget(env_label)
+        # Health check interval
+        monitoring_layout.addWidget(QLabel("Health Check Interval (seconds):"), 0, 0)
+        self.widgets['health_check_interval'] = LineEdit()
+        self.widgets['health_check_interval'].setPlaceholderText("30")
+        self.widgets['health_check_interval'].textChanged.connect(self.on_config_changed)
+        monitoring_layout.addWidget(self.widgets['health_check_interval'], 0, 1)
         
-        env_frame = QFrame()
-        env_frame.setObjectName("envFrame")
-        env_layout = QVBoxLayout(env_frame)
-        env_layout.setContentsMargins(8, 8, 8, 8)
+        # Enable metrics
+        monitoring_layout.addWidget(QLabel("Enable Metrics:"), 1, 0)
+        self.widgets['enable_metrics'] = Switch()
+        self.widgets['enable_metrics'].toggled.connect(self.on_config_changed)
+        monitoring_layout.addWidget(self.widgets['enable_metrics'], 1, 1)
         
-        # Add environment variable inputs
-        env_vars = config.get("env", {})
-        for key, value in env_vars.items():
-            env_row = QHBoxLayout()
-            key_edit = LineEdit(key)
-            key_edit.setPlaceholderText("Variable name")
-            value_edit = LineEdit(str(value))
-            value_edit.setPlaceholderText("Variable value")
-            
-            env_row.addWidget(key_edit)
-            env_row.addWidget(QLabel("="))
-            env_row.addWidget(value_edit)
-            env_layout.addLayout(env_row)
+        # Metrics port
+        monitoring_layout.addWidget(QLabel("Metrics Port:"), 2, 0)
+        self.widgets['metrics_port'] = LineEdit()
+        self.widgets['metrics_port'].setPlaceholderText("9001")
+        self.widgets['metrics_port'].textChanged.connect(self.on_config_changed)
+        monitoring_layout.addWidget(self.widgets['metrics_port'], 2, 1)
         
-        layout.addWidget(env_frame)
-        
-        # Control buttons
-        button_layout = QHBoxLayout()
-        
-        test_button = PrimaryButton("Test Connection")
-        test_button.clicked.connect(lambda: self.test_server_connection(server_id))
-        button_layout.addWidget(test_button)
-        
-        restart_button = PrimaryButton("Restart Server")
-        restart_button.clicked.connect(lambda: self.restart_server(server_id))
-        button_layout.addWidget(restart_button)
-        
-        button_layout.addStretch()
-        layout.addLayout(button_layout)
-        
-        # Store widgets for later access
-        self.server_widgets[server_id] = {
-            "enabled": enabled_switch,
-            "auto_start": autostart_switch,
-            "command": command_edit,
-            "args": args_edit,
-            "cwd": cwd_edit
+        monitoring_widget = QWidget()
+        monitoring_widget.setLayout(monitoring_layout)
+        card.addWidget(monitoring_widget)
+        return card
+    
+    def on_config_changed(self):
+        """Handle configuration changes and emit signal."""
+        # Collect all configuration data matching MCP_config.json structure
+        config = {
+            "mcp_servers": {
+                "word_editor": {
+                    "name": "Word Editor MCP Server",
+                    "description": "MCP server for controlling the word editor application",
+                    "path": "./MCP/word_editor/server.py",
+                    "port": int(self.widgets['word_port'].text() or "8888"),
+                    "enabled": self.widgets['word_enabled'].isChecked(),
+                    "auto_start": self.widgets['word_auto_start'].isChecked(),
+                    "capabilities": ["text_operations", "file_operations", "cli_commands"],
+                    "tools": ["set_text", "insert_text", "append_text", "get_text", "open_file", "save_file", "get_file_info", "send_cli_command", "check_gui_status", "get_available_commands"],
+                    "restart_on_failure": self.widgets['word_restart_on_failure'].isChecked(),
+                    "max_restart_attempts": int(self.widgets['word_max_restart'].text() or "3")
+                },
+                "browser": {
+                    "name": "Browser MCP Server",
+                    "description": "MCP server for controlling the browser application",
+                    "path": "./MCP/browser/server.py",
+                    "port": int(self.widgets['browser_port'].text() or "8889"),
+                    "enabled": self.widgets['browser_enabled'].isChecked(),
+                    "auto_start": self.widgets['browser_auto_start'].isChecked(),
+                    "capabilities": ["navigation", "bookmarks", "page_interaction", "adblock_control"],
+                    "tools": ["open_url", "navigate_back", "navigate_forward", "reload_page", "add_bookmark", "get_bookmarks", "click_element", "click_text", "get_page_html", "summarize_page", "adblock_enable", "adblock_disable", "adblock_toggle", "adblock_load_rules"],
+                    "restart_on_failure": self.widgets['browser_restart_on_failure'].isChecked(),
+                    "max_restart_attempts": int(self.widgets['browser_max_restart'].text() or "3")
+                },
+                "radio_player": {
+                    "name": "Radio Player MCP Server",
+                    "description": "MCP server for controlling the radio player application",
+                    "path": "./MCP/radio_player/server.py",
+                    "port": int(self.widgets['radio_port'].text() or "8890"),
+                    "enabled": self.widgets['radio_enabled'].isChecked(),
+                    "auto_start": self.widgets['radio_auto_start'].isChecked(),
+                    "capabilities": ["playback_control", "search", "station_management", "volume_control"],
+                    "tools": ["play_station", "stop_playback", "pause_playback", "resume_playback", "search_stations", "get_current_station", "get_favorites", "add_favorite", "remove_favorite", "set_volume", "get_volume", "get_playback_status"],
+                    "restart_on_failure": self.widgets['radio_restart_on_failure'].isChecked(),
+                    "max_restart_attempts": int(self.widgets['radio_max_restart'].text() or "3")
+                },
+                "rag": {
+                    "name": "RAG MCP Server",
+                    "description": "MCP server for controlling the RAG (Retrieval-Augmented Generation) application",
+                    "path": "./MCP/rag/server.py",
+                    "port": int(self.widgets['rag_port'].text() or "8891"),
+                    "enabled": self.widgets['rag_enabled'].isChecked(),
+                    "auto_start": self.widgets['rag_auto_start'].isChecked(),
+                    "capabilities": ["document_indexing", "query_processing", "file_watching", "document_management"],
+                    "tools": ["rag_index_all", "rag_add_document", "rag_delete_document", "rag_query", "rag_interactive_query", "rag_start_watching", "rag_stop_watching", "rag_health_check", "rag_get_status"],
+                    "restart_on_failure": self.widgets['rag_restart_on_failure'].isChecked(),
+                    "max_restart_attempts": int(self.widgets['rag_max_restart'].text() or "3")
+                }
+            },
+            "logging": {
+                "level": self.widgets['log_level'].currentText(),
+                "file": self.widgets['log_file'].text() or "./logs/mcp_servers.log",
+                "max_file_size": self.widgets['max_file_size'].text() or "10MB",
+                "backup_count": int(self.widgets['backup_count'].text() or "5"),
+                "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                "console_output": self.widgets['console_output'].isChecked()
+            },
+            "monitoring": {
+                "health_check_interval": int(self.widgets['health_check_interval'].text() or "30"),
+                "enable_metrics": self.widgets['enable_metrics'].isChecked(),
+                "metrics_port": int(self.widgets['metrics_port'].text() or "9001")
+            }
         }
         
-        # Add to accordion
-        self.servers_accordion.addSection(title, section_widget)
-    
-    def create_global_settings_card(self):
-        """Create global MCP settings card."""
-        card = Card("Global Settings", "Configuration that applies to all MCP servers")
-        
-        layout = QVBoxLayout()
-        
-        # Connection timeout
-        timeout_layout = QHBoxLayout()
-        timeout_label = QLabel("Connection Timeout (seconds):")
-        self.timeout_edit = LineEdit("30")
-        self.timeout_edit.textChanged.connect(self.on_global_setting_changed)
-        timeout_layout.addWidget(timeout_label)
-        timeout_layout.addWidget(self.timeout_edit)
-        layout.addLayout(timeout_layout)
-        
-        # Max retries
-        retries_layout = QHBoxLayout()
-        retries_label = QLabel("Max Connection Retries:")
-        self.retries_edit = LineEdit("3")
-        self.retries_edit.textChanged.connect(self.on_global_setting_changed)
-        retries_layout.addWidget(retries_label)
-        retries_layout.addWidget(self.retries_edit)
-        layout.addLayout(retries_layout)
-        
-        # Debug mode
-        debug_layout = QHBoxLayout()
-        self.debug_switch = Switch("Enable Debug Logging")
-        self.debug_switch.toggled.connect(self.on_global_setting_changed)
-        debug_layout.addWidget(self.debug_switch)
-        debug_layout.addStretch()
-        layout.addLayout(debug_layout)
-        
-        settings_widget = QWidget()
-        settings_widget.setLayout(layout)
-        card.addWidget(settings_widget)
-        return card
-    
-    def create_actions_card(self):
-        """Create actions card with control buttons."""
-        card = Card("Actions", "Control all MCP servers")
-        
-        button_layout = QHBoxLayout()
-        
-        start_all_button = PrimaryButton("Start All Servers")
-        start_all_button.clicked.connect(self.start_all_servers)
-        button_layout.addWidget(start_all_button)
-        
-        stop_all_button = PrimaryButton("Stop All Servers")
-        stop_all_button.clicked.connect(self.stop_all_servers)
-        button_layout.addWidget(stop_all_button)
-        
-        restart_all_button = PrimaryButton("Restart All Servers")
-        restart_all_button.clicked.connect(self.restart_all_servers)
-        button_layout.addWidget(restart_all_button)
-        
-        button_layout.addStretch()
-        
-        refresh_button = PrimaryButton("Refresh Status")
-        refresh_button.clicked.connect(self.refresh_server_status)
-        button_layout.addWidget(refresh_button)
-        
-        actions_widget = QWidget()
-        actions_widget.setLayout(button_layout)
-        card.addWidget(actions_widget)
-        return card
-    
-    def update_server_config(self, server_id, key, value):
-        """Update server configuration and emit change signal."""
-        if server_id not in self.config_data:
-            self.config_data[server_id] = {}
-        
-        self.config_data[server_id][key] = value
-        self.config_changed.emit(self.config_data)
-    
-    def on_global_setting_changed(self):
-        """Handle global setting changes."""
-        global_settings = {
-            "timeout": int(self.timeout_edit.text() or "30"),
-            "max_retries": int(self.retries_edit.text() or "3"),
-            "debug_mode": self.debug_switch.isChecked()
-        }
-        
-        self.config_data["global"] = global_settings
-        self.config_changed.emit(self.config_data)
-    
-    def add_new_server(self):
-        """Add a new server configuration."""
-        # This would open a dialog to configure a new server
-        # For now, just add a placeholder
-        server_id = f"custom_server_{len(self.server_widgets)}"
-        self.add_server_section(f"Custom Server {len(self.server_widgets)}", server_id, {
-            "command": "python",
-            "args": ["server.py"],
-            "cwd": "",
-            "enabled": False,
-            "auto_start": False
-        })
-    
-    def test_server_connection(self, server_id):
-        """Test connection to a specific server."""
-        # Implement server connection testing
-        pass
-    
-    def restart_server(self, server_id):
-        """Restart a specific server."""
-        # Implement server restart logic
-        pass
-    
-    def start_all_servers(self):
-        """Start all enabled servers."""
-        # Implement start all logic
-        pass
-    
-    def stop_all_servers(self):
-        """Stop all running servers."""
-        # Implement stop all logic
-        pass
-    
-    def restart_all_servers(self):
-        """Restart all servers."""
-        # Implement restart all logic
-        pass
-    
-    def refresh_server_status(self):
-        """Refresh the status of all servers."""
-        # Implement status refresh logic
-        active_count = sum(1 for config in self.config_data.values() 
-                          if isinstance(config, dict) and config.get("enabled", False))
-        self.active_count_label.setText(f"{active_count} Active Servers")
+        self.config_data = config
+        self.config_changed.emit(config)
     
     def load_config(self, config_data: Dict[str, Any]):
         """Load configuration data into the panel."""
         self.config_data = config_data.copy()
         
-        # Update global settings
-        global_settings = config_data.get("global", {})
-        self.timeout_edit.setText(str(global_settings.get("timeout", 30)))
-        self.retries_edit.setText(str(global_settings.get("max_retries", 3)))
-        self.debug_switch.setChecked(global_settings.get("debug_mode", False))
+        # Load MCP servers settings
+        mcp_servers = config_data.get("mcp_servers", {})
         
-        # Update server configurations
-        for server_id, widgets in self.server_widgets.items():
-            server_config = config_data.get(server_id, {})
-            widgets["enabled"].setChecked(server_config.get("enabled", False))
-            widgets["auto_start"].setChecked(server_config.get("auto_start", False))
-            widgets["command"].setText(server_config.get("command", ""))
-            widgets["args"].setText(", ".join(server_config.get("args", [])))
-            widgets["cwd"].setText(server_config.get("cwd", ""))
+        # Word Editor
+        word = mcp_servers.get("word_editor", {})
+        self.widgets['word_port'].setText(str(word.get("port", 8888)))
+        self.widgets['word_enabled'].setChecked(word.get("enabled", True))
+        self.widgets['word_auto_start'].setChecked(word.get("auto_start", True))
+        self.widgets['word_restart_on_failure'].setChecked(word.get("restart_on_failure", True))
+        self.widgets['word_max_restart'].setText(str(word.get("max_restart_attempts", 3)))
         
-        self.refresh_server_status()
-    
-    def get_config(self) -> Dict[str, Any]:
-        """Get current configuration data."""
-        return self.config_data.copy()
+        # Browser
+        browser = mcp_servers.get("browser", {})
+        self.widgets['browser_port'].setText(str(browser.get("port", 8889)))
+        self.widgets['browser_enabled'].setChecked(browser.get("enabled", True))
+        self.widgets['browser_auto_start'].setChecked(browser.get("auto_start", True))
+        self.widgets['browser_restart_on_failure'].setChecked(browser.get("restart_on_failure", True))
+        self.widgets['browser_max_restart'].setText(str(browser.get("max_restart_attempts", 3)))
+        
+        # Radio Player
+        radio = mcp_servers.get("radio_player", {})
+        self.widgets['radio_port'].setText(str(radio.get("port", 8890)))
+        self.widgets['radio_enabled'].setChecked(radio.get("enabled", True))
+        self.widgets['radio_auto_start'].setChecked(radio.get("auto_start", True))
+        self.widgets['radio_restart_on_failure'].setChecked(radio.get("restart_on_failure", True))
+        self.widgets['radio_max_restart'].setText(str(radio.get("max_restart_attempts", 3)))
+        
+        # RAG
+        rag = mcp_servers.get("rag", {})
+        self.widgets['rag_port'].setText(str(rag.get("port", 8891)))
+        self.widgets['rag_enabled'].setChecked(rag.get("enabled", True))
+        self.widgets['rag_auto_start'].setChecked(rag.get("auto_start", True))
+        self.widgets['rag_restart_on_failure'].setChecked(rag.get("restart_on_failure", True))
+        self.widgets['rag_max_restart'].setText(str(rag.get("max_restart_attempts", 3)))
+        
+        # Load logging settings
+        logging = config_data.get("logging", {})
+        self.widgets['log_level'].setCurrentText(logging.get("level", "INFO"))
+        self.widgets['log_file'].setText(logging.get("file", "./logs/mcp_servers.log"))
+        self.widgets['max_file_size'].setText(logging.get("max_file_size", "10MB"))
+        self.widgets['backup_count'].setText(str(logging.get("backup_count", 5)))
+        self.widgets['console_output'].setChecked(logging.get("console_output", True))
+        
+        # Load monitoring settings
+        monitoring = config_data.get("monitoring", {})
+        self.widgets['health_check_interval'].setText(str(monitoring.get("health_check_interval", 30)))
+        self.widgets['enable_metrics'].setChecked(monitoring.get("enable_metrics", False))
+        self.widgets['metrics_port'].setText(str(monitoring.get("metrics_port", 9001)))

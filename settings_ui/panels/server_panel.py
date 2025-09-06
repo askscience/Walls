@@ -26,13 +26,14 @@ from gui_core.components.slider.widgets import Slider
 
 
 class ServerPanel(QWidget):
-    """Modern shared server configuration panel."""
+    """Modern shared server configuration panel for APP_config.json."""
     
     config_changed = Signal(dict)
     
     def __init__(self, parent=None):
         super().__init__(parent)
         self.config_data = {}
+        self.widgets = {}
         self.setup_ui()
     
     def setup_ui(self):
@@ -52,66 +53,99 @@ class ServerPanel(QWidget):
         content_layout.setContentsMargins(0, 0, 16, 0)  # Right margin for scrollbar
         content_layout.setSpacing(20)
         
-        # Server status card
-        status_card = self.create_status_card()
-        content_layout.addWidget(status_card)
+        # Server settings card
+        server_card = self.create_server_settings_card()
+        content_layout.addWidget(server_card)
         
-        # Connection settings card
-        connection_card = self.create_connection_card()
-        content_layout.addWidget(connection_card)
-        
-        # Performance settings card
-        performance_card = self.create_performance_card()
-        content_layout.addWidget(performance_card)
-        
-        # Security settings card
-        security_card = self.create_security_card()
-        content_layout.addWidget(security_card)
+        # Apps configuration card
+        apps_card = self.create_apps_card()
+        content_layout.addWidget(apps_card)
         
         # Logging settings card
         logging_card = self.create_logging_card()
         content_layout.addWidget(logging_card)
         
-        # Actions card
-        actions_card = self.create_actions_card()
-        content_layout.addWidget(actions_card)
+        # Security settings card
+        security_card = self.create_security_card()
+        content_layout.addWidget(security_card)
         
         content_layout.addStretch()
         
         scroll.setWidget(content_widget)
         layout.addWidget(scroll)
     
-    def create_status_card(self):
-        """Create server status overview card."""
-        card = Card("Server Status", "Current shared server status and information")
+    def create_server_settings_card(self):
+        """Create server configuration card matching APP_config.json structure."""
+        card = Card("Server Configuration", "Basic server settings from APP_config.json")
         
-        status_layout = QGridLayout()
-        status_layout.setSpacing(12)
+        server_layout = QGridLayout()
+        server_layout.setSpacing(12)
         
-        # Server status indicator
-        status_layout.addWidget(QLabel("Status:"), 0, 0)
-        self.status_indicator = QLabel("● Stopped")
-        self.status_indicator.setObjectName("statusIndicator")
-        status_layout.addWidget(self.status_indicator, 0, 1)
+        # Base port
+        server_layout.addWidget(QLabel("Base Port:"), 0, 0)
+        self.widgets['base_port'] = LineEdit()
+        self.widgets['base_port'].setPlaceholderText("9000")
+        server_layout.addWidget(self.widgets['base_port'], 0, 1)
         
-        # Server address
-        status_layout.addWidget(QLabel("Address:"), 1, 0)
-        self.address_label = QLabel("localhost:8000")
-        status_layout.addWidget(self.address_label, 1, 1)
+        # Host
+        server_layout.addWidget(QLabel("Host:"), 1, 0)
+        self.widgets['host'] = LineEdit()
+        self.widgets['host'].setPlaceholderText("localhost")
+        server_layout.addWidget(self.widgets['host'], 1, 1)
         
-        # Uptime
-        status_layout.addWidget(QLabel("Uptime:"), 2, 0)
-        self.uptime_label = QLabel("Not running")
-        status_layout.addWidget(self.uptime_label, 2, 1)
+        # Max apps
+        server_layout.addWidget(QLabel("Max Apps:"), 2, 0)
+        self.widgets['max_apps'] = LineEdit()
+        self.widgets['max_apps'].setPlaceholderText("10")
+        server_layout.addWidget(self.widgets['max_apps'], 2, 1)
         
-        # Active connections
-        status_layout.addWidget(QLabel("Connections:"), 3, 0)
-        self.connections_label = QLabel("0")
-        status_layout.addWidget(self.connections_label, 3, 1)
+        # Timeout
+        server_layout.addWidget(QLabel("Timeout (seconds):"), 3, 0)
+        self.widgets['timeout'] = LineEdit()
+        self.widgets['timeout'].setPlaceholderText("600.0")
+        server_layout.addWidget(self.widgets['timeout'], 3, 1)
         
-        status_widget = QWidget()
-        status_widget.setLayout(status_layout)
-        card.addWidget(status_widget)
+        # Auto start MCP
+        server_layout.addWidget(QLabel("Auto Start MCP:"), 4, 0)
+        self.widgets['auto_start_mcp'] = Switch()
+        self.widgets['auto_start_mcp'].toggled.connect(self.on_config_changed)
+        server_layout.addWidget(self.widgets['auto_start_mcp'], 4, 1)
+        
+        server_widget = QWidget()
+        server_widget.setLayout(server_layout)
+        card.addWidget(server_widget)
+        return card
+    
+    def create_apps_card(self):
+        """Create apps configuration card matching APP_config.json structure."""
+        card = Card("Apps Configuration", "Configure application settings from APP_config.json")
+        
+        apps_layout = QGridLayout()
+        apps_layout.setSpacing(12)
+        
+        # Max apps
+        apps_layout.addWidget(QLabel("Max Apps:"), 0, 0)
+        self.widgets['max_apps'] = LineEdit()
+        self.widgets['max_apps'].setPlaceholderText("10")
+        self.widgets['max_apps'].textChanged.connect(self.on_config_changed)
+        apps_layout.addWidget(self.widgets['max_apps'], 0, 1)
+        
+        # Default timeout
+        apps_layout.addWidget(QLabel("Default Timeout (seconds):"), 1, 0)
+        self.widgets['default_timeout'] = LineEdit()
+        self.widgets['default_timeout'].setPlaceholderText("30")
+        self.widgets['default_timeout'].textChanged.connect(self.on_config_changed)
+        apps_layout.addWidget(self.widgets['default_timeout'], 1, 1)
+        
+        # Enable auto restart
+        apps_layout.addWidget(QLabel("Enable Auto Restart:"), 2, 0)
+        self.widgets['enable_auto_restart'] = Switch()
+        self.widgets['enable_auto_restart'].toggled.connect(self.on_config_changed)
+        apps_layout.addWidget(self.widgets['enable_auto_restart'], 2, 1)
+        
+        apps_widget = QWidget()
+        apps_widget.setLayout(apps_layout)
+        card.addWidget(apps_widget)
         return card
     
     def create_connection_card(self):

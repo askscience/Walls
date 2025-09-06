@@ -3,7 +3,7 @@
   "chroma_db_path": "chroma_db",
   "chroma_collection_name": "rag_documents",
   "ollama_embedding_model": "nomic-embed-text",
-  "ollama_llm_model": "qwen3:latest",
+  "ollama_llm_model": "deepseek-r1:1.5b",
   "llm_model_params": {
     "temperature": 1.0,
     "top_k": 64,

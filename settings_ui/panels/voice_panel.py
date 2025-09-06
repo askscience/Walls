@@ -1,266 +1,278 @@
-"""Modern Voice Panel with flat design and gui_core components."""
+"""Voice settings panel for configuring voice interface."""
 
-import sys
+import json
 import os
+from typing import Dict, Any
 from pathlib import Path
-from typing import Dict, Any, List
 
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QScrollArea, QLabel, QFrame,
-    QGridLayout, QSpacerItem, QSizePolicy, QTextEdit, QListWidget,
-    QListWidgetItem
-)
-from PySide6.QtCore import Signal, Qt, QTimer
-from PySide6.QtGui import QIcon
-
-# Import gui_core components
-parent_dir = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(parent_dir))
-
-from gui_core.components.cards.widgets import Card
-from gui_core.components.line_edit.widgets import LineEdit
-from gui_core.components.button.widgets import PrimaryButton
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QGridLayout
+from PySide6.QtCore import Signal
+from gui_core.components.cards import Card
 from gui_core.components.switch.widgets import Switch
-from gui_core.components.checkbox.widgets import CheckBox
-from gui_core.components.combo_box.widgets import ComboBox
-from gui_core.components.slider.widgets import Slider
-from gui_core.components.progress_bar.widgets import ProgressBar
 
 
 class VoicePanel(QWidget):
-    """Modern Voice configuration panel for speech recognition and synthesis."""
+    """Panel for voice interface settings."""
     
-    config_changed = Signal(dict)
+    config_changed = Signal(str, dict)  # (panel_name, config_data)
     
     def __init__(self, parent=None):
         super().__init__(parent)
         self.config_data = {}
-        self.audio_devices = []
+        self.widgets = {}
         self.setup_ui()
-        self.refresh_audio_devices()
+        self.load_default_config()
     
     def setup_ui(self):
-        """Setup the modern flat user interface."""
+        """Set up the user interface."""
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(16)
+        layout.setContentsMargins(20, 20, 20, 20)
         
-        # Create scroll area for content
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        scroll.setFrameStyle(0)
+        # Title
+        title = QLabel("Voice Interface")
+        title.setObjectName("panelTitle")
+        layout.addWidget(title)
         
-        content_widget = QWidget()
-        content_layout = QVBoxLayout(content_widget)
-        content_layout.setContentsMargins(0, 0, 16, 0)  # Right margin for scrollbar
-        content_layout.setSpacing(20)
+        subtitle = QLabel("Setup voice interaction and speech settings")
+        subtitle.setObjectName("panelSubtitle")
+        layout.addWidget(subtitle)
         
-        # Voice system status card
-        status_card = self.create_status_card()
-        content_layout.addWidget(status_card)
+        # Audio Devices Card
+        layout.addWidget(self.create_audio_devices_card())
         
-        # Audio devices card
-        devices_card = self.create_audio_devices_card()
-        content_layout.addWidget(devices_card)
+        # Speech Recognition Card
+        layout.addWidget(self.create_speech_recognition_card())
         
-        # Speech recognition card
-        recognition_card = self.create_recognition_card()
-        content_layout.addWidget(recognition_card)
+        # Text-to-Speech Card
+        layout.addWidget(self.create_text_to_speech_card())
         
-        # Text-to-speech card
-        tts_card = self.create_tts_card()
-        content_layout.addWidget(tts_card)
+        # UI Settings Card
+        layout.addWidget(self.create_ui_settings_card())
         
-        content_layout.addStretch()
-        
-        scroll.setWidget(content_widget)
-        layout.addWidget(scroll)
-    
-    def create_status_card(self):
-        """Create voice system status card."""
-        card = Card("Voice System Status", "Current status of speech recognition and synthesis")
-        
-        status_layout = QGridLayout()
-        status_layout.setSpacing(12)
-        
-        # System status
-        status_layout.addWidget(QLabel("Status:"), 0, 0)
-        self.status_indicator = QLabel("● Inactive")
-        self.status_indicator.setObjectName("statusIndicator")
-        status_layout.addWidget(self.status_indicator, 0, 1)
-        
-        # Recognition engine status
-        status_layout.addWidget(QLabel("Recognition:"), 1, 0)
-        self.recognition_status = QLabel("Not initialized")
-        status_layout.addWidget(self.recognition_status, 1, 1)
-        
-        # TTS engine status
-        status_layout.addWidget(QLabel("Text-to-Speech:"), 2, 0)
-        self.tts_status = QLabel("Not initialized")
-        status_layout.addWidget(self.tts_status, 2, 1)
-        
-        status_widget = QWidget()
-        status_widget.setLayout(status_layout)
-        card.addWidget(status_widget)
-        return card
+        layout.addStretch()
     
     def create_audio_devices_card(self):
-        """Create audio devices configuration card."""
-        card = Card("Audio Devices", "Configure microphone and speaker settings")
+        """Create audio devices settings card."""
+        card = Card("Audio Devices")
+        layout = QGridLayout()
+        layout.setSpacing(12)
+        layout.setContentsMargins(16, 16, 16, 16)
         
-        layout = QVBoxLayout()
-        layout.setSpacing(16)
+        # Input Device
+        layout.addWidget(QLabel("Input Device:"), 0, 0)
+        self.widgets['input_device'] = QComboBox()
+        self.widgets['input_device'].addItems(["Default Microphone", "Built-in Microphone", "External Microphone"])
+        self.widgets['input_device'].setCurrentText("Default Microphone")
+        self.widgets['input_device'].currentTextChanged.connect(self.on_config_changed)
+        layout.addWidget(self.widgets['input_device'], 0, 1)
         
-        # Input device
-        input_layout = QVBoxLayout()
-        input_layout.addWidget(QLabel("Microphone:"))
-        self.input_device_combo = ComboBox()
-        self.input_device_combo.currentTextChanged.connect(self.on_config_changed)
-        input_layout.addWidget(self.input_device_combo)
-        layout.addLayout(input_layout)
+        # Output Device
+        layout.addWidget(QLabel("Output Device:"), 1, 0)
+        self.widgets['output_device'] = QComboBox()
+        self.widgets['output_device'].addItems(["Default Speaker", "Built-in Speakers", "Headphones"])
+        self.widgets['output_device'].setCurrentText("Default Speaker")
+        self.widgets['output_device'].currentTextChanged.connect(self.on_config_changed)
+        layout.addWidget(self.widgets['output_device'], 1, 1)
         
-        # Output device
-        output_layout = QVBoxLayout()
-        output_layout.addWidget(QLabel("Speaker:"))
-        self.output_device_combo = ComboBox()
-        self.output_device_combo.currentTextChanged.connect(self.on_config_changed)
-        output_layout.addWidget(self.output_device_combo)
-        layout.addLayout(output_layout)
-        
-        devices_widget = QWidget()
-        devices_widget.setLayout(layout)
-        card.addWidget(devices_widget)
+        card.setLayout(layout)
         return card
     
-    def create_recognition_card(self):
-        """Create speech recognition configuration card."""
+    def create_speech_recognition_card(self):
+        """Create speech recognition settings card."""
         card = Card("Speech Recognition", "Configure speech-to-text settings")
+        layout = QGridLayout()
+        layout.setSpacing(12)
+        layout.setContentsMargins(16, 16, 16, 16)
         
-        layout = QVBoxLayout()
-        layout.setSpacing(16)
+        # Enable Speech Recognition
+        layout.addWidget(QLabel("Enable speech recognition:"), 0, 0)
+        self.widgets['speech_enabled'] = Switch()
+        self.widgets['speech_enabled'].setChecked(False)
+        self.widgets['speech_enabled'].toggled.connect(self.on_config_changed)
+        layout.addWidget(self.widgets['speech_enabled'], 0, 1)
         
-        # Enable recognition
-        enable_layout = QHBoxLayout()
-        self.recognition_switch = Switch("Enable Speech Recognition")
-        self.recognition_switch.toggled.connect(self.on_config_changed)
-        enable_layout.addWidget(self.recognition_switch)
-        enable_layout.addStretch()
-        layout.addLayout(enable_layout)
+        # Engine
+        layout.addWidget(QLabel("Engine:"), 1, 0)
+        self.widgets['speech_engine'] = QComboBox()
+        self.widgets['speech_engine'].addItems(["vosk", "whisper"])
+        self.widgets['speech_engine'].setCurrentText("vosk")
+        self.widgets['speech_engine'].currentTextChanged.connect(self.on_config_changed)
+        layout.addWidget(self.widgets['speech_engine'], 1, 1)
         
-        # Recognition engine
-        engine_layout = QHBoxLayout()
-        engine_layout.addWidget(QLabel("Recognition Engine:"))
-        self.recognition_engine_combo = ComboBox()
-        self.recognition_engine_combo.addItems([
-            "Google Speech Recognition",
-            "OpenAI Whisper",
-            "Azure Speech"
+        # Vosk Model
+        layout.addWidget(QLabel("Vosk Model:"), 2, 0)
+        self.widgets['vosk_model'] = QComboBox()
+        self.widgets['vosk_model'].addItems([
+            "vosk-model-small-en-us-0.15",
+            "vosk-model-en-us-0.22",
+            "vosk-model-en-us-0.22-lgraph"
         ])
-        self.recognition_engine_combo.currentTextChanged.connect(self.on_config_changed)
-        engine_layout.addWidget(self.recognition_engine_combo)
-        layout.addLayout(engine_layout)
+        self.widgets['vosk_model'].setCurrentText("vosk-model-small-en-us-0.15")
+        self.widgets['vosk_model'].currentTextChanged.connect(self.on_config_changed)
+        layout.addWidget(self.widgets['vosk_model'], 2, 1)
         
-        recognition_widget = QWidget()
-        recognition_widget.setLayout(layout)
-        card.addWidget(recognition_widget)
+        # Language
+        layout.addWidget(QLabel("Language:"), 3, 0)
+        self.widgets['speech_language'] = QComboBox()
+        self.widgets['speech_language'].addItems(["English", "Spanish", "French", "German"])
+        self.widgets['speech_language'].setCurrentText("English")
+        self.widgets['speech_language'].currentTextChanged.connect(self.on_config_changed)
+        layout.addWidget(self.widgets['speech_language'], 3, 1)
+        
+        card.setLayout(layout)
         return card
     
-    def create_tts_card(self):
-        """Create text-to-speech configuration card."""
-        card = Card("Text-to-Speech", "Configure speech synthesis settings")
-        
-        layout = QVBoxLayout()
-        layout.setSpacing(16)
+    def create_text_to_speech_card(self):
+        """Create text-to-speech settings card."""
+        card = Card("Text-to-Speech", "Configure text-to-speech settings")
+        layout = QGridLayout()
+        layout.setSpacing(12)
+        layout.setContentsMargins(16, 16, 16, 16)
         
         # Enable TTS
-        enable_layout = QHBoxLayout()
-        self.tts_switch = Switch("Enable Text-to-Speech")
-        self.tts_switch.toggled.connect(self.on_config_changed)
-        enable_layout.addWidget(self.tts_switch)
-        enable_layout.addStretch()
-        layout.addLayout(enable_layout)
+        layout.addWidget(QLabel("Enable text-to-speech:"), 0, 0)
+        self.widgets['tts_enabled'] = Switch()
+        self.widgets['tts_enabled'].setChecked(False)
+        self.widgets['tts_enabled'].toggled.connect(self.on_config_changed)
+        layout.addWidget(self.widgets['tts_enabled'], 0, 1)
         
-        # TTS engine
-        engine_layout = QHBoxLayout()
-        engine_layout.addWidget(QLabel("TTS Engine:"))
-        self.tts_engine_combo = ComboBox()
-        self.tts_engine_combo.addItems([
-            "System Default",
-            "OpenAI TTS",
-            "Azure Speech"
-        ])
-        self.tts_engine_combo.currentTextChanged.connect(self.on_config_changed)
-        engine_layout.addWidget(self.tts_engine_combo)
-        layout.addLayout(engine_layout)
+        # Engine
+        layout.addWidget(QLabel("Engine:"), 1, 0)
+        self.widgets['tts_engine'] = QComboBox()
+        self.widgets['tts_engine'].addItems(["kokoro", "pyttsx3", "azure", "google"])
+        self.widgets['tts_engine'].setCurrentText("kokoro")
+        self.widgets['tts_engine'].currentTextChanged.connect(self.on_config_changed)
+        layout.addWidget(self.widgets['tts_engine'], 1, 1)
         
-        tts_widget = QWidget()
-        tts_widget.setLayout(layout)
-        card.addWidget(tts_widget)
+        # Voice
+        layout.addWidget(QLabel("Voice:"), 2, 0)
+        self.widgets['tts_voice'] = QComboBox()
+        self.widgets['tts_voice'].setEditable(True)
+        self.widgets['tts_voice'].addItems(["af_heart", "af_bella", "af_sarah", "am_adam"])
+        self.widgets['tts_voice'].setCurrentText("af_heart")
+        self.widgets['tts_voice'].currentTextChanged.connect(self.on_config_changed)
+        layout.addWidget(self.widgets['tts_voice'], 2, 1)
+        
+        # Language Code
+        layout.addWidget(QLabel("Language Code:"), 3, 0)
+        self.widgets['tts_lang_code'] = QComboBox()
+        self.widgets['tts_lang_code'].setEditable(True)
+        self.widgets['tts_lang_code'].addItems(["a", "en", "es", "fr", "de"])
+        self.widgets['tts_lang_code'].setCurrentText("a")
+        self.widgets['tts_lang_code'].currentTextChanged.connect(self.on_config_changed)
+        layout.addWidget(self.widgets['tts_lang_code'], 3, 1)
+        
+        card.setLayout(layout)
+        return card
+    
+    def create_ui_settings_card(self):
+        """Create UI settings card."""
+        card = Card("UI Settings", "Configure voice interface settings")
+        layout = QGridLayout()
+        layout.setSpacing(12)
+        layout.setContentsMargins(16, 16, 16, 16)
+        
+        # Show Waveform
+        layout.addWidget(QLabel("Show Waveform:"), 0, 0)
+        self.widgets['show_waveform'] = Switch()
+        self.widgets['show_waveform'].setChecked(True)
+        self.widgets['show_waveform'].toggled.connect(self.on_config_changed)
+        layout.addWidget(self.widgets['show_waveform'], 0, 1)
+        
+        # Auto Start Listening
+        layout.addWidget(QLabel("Auto Start Listening:"), 1, 0)
+        self.widgets['auto_start_listening'] = Switch()
+        self.widgets['auto_start_listening'].setChecked(False)
+        self.widgets['auto_start_listening'].toggled.connect(self.on_config_changed)
+        layout.addWidget(self.widgets['auto_start_listening'], 1, 1)
+        
+        card.setLayout(layout)
         return card
     
     def on_config_changed(self):
         """Handle configuration changes and emit signal."""
         config = {
             "audio_devices": {
-                "input_device": self.input_device_combo.currentText(),
-                "output_device": self.output_device_combo.currentText()
+                "input_device": self.widgets['input_device'].currentText(),
+                "output_device": self.widgets['output_device'].currentText()
             },
             "speech_recognition": {
-                "enabled": self.recognition_switch.isChecked(),
-                "engine": self.recognition_engine_combo.currentText()
+                "enabled": self.widgets['speech_enabled'].isChecked(),
+                "engine": self.widgets['speech_engine'].currentText(),
+                "vosk_model": self.widgets['vosk_model'].currentText(),
+                "language": self.widgets['speech_language'].currentText()
             },
             "text_to_speech": {
-                "enabled": self.tts_switch.isChecked(),
-                "engine": self.tts_engine_combo.currentText()
+                "enabled": self.widgets['tts_enabled'].isChecked(),
+                "engine": self.widgets['tts_engine'].currentText(),
+                "voice": self.widgets['tts_voice'].currentText(),
+                "lang_code": self.widgets['tts_lang_code'].currentText()
+            },
+            "ui": {
+                "show_waveform": self.widgets['show_waveform'].isChecked(),
+                "auto_start_listening": self.widgets['auto_start_listening'].isChecked()
             }
         }
         
         self.config_data = config
-        self.config_changed.emit(config)
-    
-    def refresh_audio_devices(self):
-        """Refresh the list of available audio devices."""
-        input_devices = [
-            "Default Microphone",
-            "Built-in Microphone",
-            "USB Microphone"
-        ]
-        
-        output_devices = [
-            "Default Speaker",
-            "Built-in Speakers",
-            "USB Headphones"
-        ]
-        
-        self.input_device_combo.clear()
-        self.input_device_combo.addItems(input_devices)
-        
-        self.output_device_combo.clear()
-        self.output_device_combo.addItems(output_devices)
+        self.config_changed.emit("voice", config)
     
     def load_config(self, config_data: Dict[str, Any]):
-        """Load configuration data into the panel."""
-        self.config_data = config_data.copy()
+        """Load configuration data into the UI."""
+        self.config_data = config_data
         
-        # Load audio devices
+        # Load audio devices settings
         audio_devices = config_data.get("audio_devices", {})
-        self.input_device_combo.setCurrentText(audio_devices.get("input_device", "Default Microphone"))
-        self.output_device_combo.setCurrentText(audio_devices.get("output_device", "Default Speaker"))
+        if 'input_device' in self.widgets:
+            self.widgets['input_device'].setCurrentText(audio_devices.get("input_device", "Default Microphone"))
+        if 'output_device' in self.widgets:
+            self.widgets['output_device'].setCurrentText(audio_devices.get("output_device", "Default Speaker"))
         
-        # Load speech recognition
-        recognition = config_data.get("speech_recognition", {})
-        self.recognition_switch.setChecked(recognition.get("enabled", False))
-        self.recognition_engine_combo.setCurrentText(recognition.get("engine", "Google Speech Recognition"))
+        # Load speech recognition settings
+        speech_recognition = config_data.get("speech_recognition", {})
+        if 'speech_enabled' in self.widgets:
+            self.widgets['speech_enabled'].setChecked(speech_recognition.get("enabled", False))
+        if 'speech_engine' in self.widgets:
+            self.widgets['speech_engine'].setCurrentText(speech_recognition.get("engine", "vosk"))
+        if 'vosk_model' in self.widgets:
+            self.widgets['vosk_model'].setCurrentText(speech_recognition.get("vosk_model", "vosk-model-small-en-us-0.15"))
+        if 'speech_language' in self.widgets:
+            self.widgets['speech_language'].setCurrentText(speech_recognition.get("language", "English"))
         
-        # Load TTS
-        tts = config_data.get("text_to_speech", {})
-        self.tts_switch.setChecked(tts.get("enabled", False))
-        self.tts_engine_combo.setCurrentText(tts.get("engine", "System Default"))
+        # Load text-to-speech settings
+        text_to_speech = config_data.get("text_to_speech", {})
+        if 'tts_enabled' in self.widgets:
+            self.widgets['tts_enabled'].setChecked(text_to_speech.get("enabled", False))
+        if 'tts_engine' in self.widgets:
+            self.widgets['tts_engine'].setCurrentText(text_to_speech.get("engine", "kokoro"))
+        if 'tts_voice' in self.widgets:
+            self.widgets['tts_voice'].setCurrentText(text_to_speech.get("voice", "af_heart"))
+        if 'tts_lang_code' in self.widgets:
+            self.widgets['tts_lang_code'].setCurrentText(text_to_speech.get("lang_code", "a"))
         
-        # Update configuration
-        self.on_config_changed()
+        # Load UI settings
+        ui_settings = config_data.get("ui", {})
+        if 'show_waveform' in self.widgets:
+            self.widgets['show_waveform'].setChecked(ui_settings.get("show_waveform", True))
+        if 'auto_start_listening' in self.widgets:
+            self.widgets['auto_start_listening'].setChecked(ui_settings.get("auto_start_listening", False))
     
-    def get_config(self) -> Dict[str, Any]:
-        """Get current configuration data."""
-        return self.config_data.copy()
+    def load_default_config(self):
+        """Load the default configuration from voice_config.json."""
+        # Get the project root directory (3 levels up from this file)
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        config_path = Path(os.path.join(project_root, 'ai_interface', 'voice_mode', 'config', 'voice_config.json'))
+        
+        if config_path.exists():
+            try:
+                with open(config_path, 'r') as f:
+                    config_data = json.load(f)
+                self.load_config(config_data)
+            except (json.JSONDecodeError, FileNotFoundError) as e:
+                print(f"Error loading voice config: {e}")
+                # Load with default values if file doesn't exist or is invalid
+                self.load_config({})
+        else:
+            # Load with default values if file doesn't exist
+            self.load_config({})
