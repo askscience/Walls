@@ -2,6 +2,7 @@ import os
 from typing import List
 
 from PySide6.QtGui import QFontDatabase
+from .adaptive_theme_manager import apply_adaptive_theme
 
 BASE_DIR = os.path.dirname(__file__)
 
@@ -37,7 +38,11 @@ def _load_mozilla_headline_font() -> None:
 
 
 def load_all_qss() -> str:
-    """Load a single, unified QSS theme for the entire app."""
+    """Load a single, unified QSS theme for the entire app.
+    
+    Deprecated: Use apply_adaptive_theme() instead for system theme support.
+    This function is kept for backward compatibility.
+    """
     root_qss = os.path.join(BASE_DIR, "theme.qss")
     if os.path.exists(root_qss):
         with open(root_qss, "r", encoding="utf-8") as f:
@@ -46,6 +51,14 @@ def load_all_qss() -> str:
 
 
 def apply_theme(app) -> None:
+    """Apply adaptive theme that responds to system theme changes.
+    
+    This function now uses the adaptive theme manager to automatically
+    detect and apply the appropriate theme (dark/light) based on the
+    system settings across Linux, Windows, and macOS.
+    """
     # Ensure Mozilla Headline is available to the application so QSS can use it
     _load_mozilla_headline_font()
-    app.setStyleSheet(load_all_qss())
+    
+    # Use the new adaptive theming system
+    apply_adaptive_theme(app)
