@@ -17,13 +17,17 @@ gui_core_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.
 if gui_core_path not in sys.path:
     sys.path.insert(0, gui_core_path)
 
+# Add ai_interface to path for voice_mode imports
+ai_interface_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+if ai_interface_path not in sys.path:
+    sys.path.insert(0, ai_interface_path)
+
 # Import voice services
 from voice_mode.services.vosk_service import VoskService
 from voice_mode.services.kokoro_service import KokoroService
 from voice_mode.utils.audio_utils import AudioUtils
 
 # Import chat manager and command execution
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from services.chat_manager import ChatManager
 from services.rag_integration import RAGIntegrationService
 # Import centralized command interception from RAG to avoid duplication
