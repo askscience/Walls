@@ -246,7 +246,7 @@ Walls/
 
 ## 📝 License
 
-This project is licensed under the MIT License. See individual component LICENSE files for specific details.
+This project is licensed under the GPL-3 License. See individual component LICENSE files for specific details.
 
 ## 🤝 Contributing
 
