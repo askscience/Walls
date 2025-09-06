@@ -1,0 +1,38 @@
+{
+  "data_dir": "data",
+  "chroma_db_path": "chroma_db",
+  "chroma_collection_name": "rag_documents",
+  "ollama_embedding_model": "nomic-embed-text",
+  "ollama_llm_model": "qwen3:latest",
+  "llm_model_params": {
+    "temperature": 1.0,
+    "top_k": 64,
+    "top_p": 0.95,
+    "min_p": 0.0
+  },
+  "ollama_request_timeout": 300.0,
+  "exclude_list": [
+    "venv",
+    "__pycache__",
+    "node_modules",
+    "build",
+    "dist",
+    "*.egg-info",
+    "*.pyc",
+    "*.pyo",
+    "*.so",
+    "*.a",
+    "*.o",
+    "chroma_db",
+    "*.tmp",
+    "*.temp",
+    "*.bak",
+    "*~",
+    "*.log",
+    "*.swp",
+    "*.part",
+    "*.crdownload",
+    "*.download",
+    "prefs-*.js"
+  ]
+}

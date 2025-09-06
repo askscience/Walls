@@ -236,7 +236,7 @@ vector_store/
 *.faiss
 *.index
 
-# RAG data cache
+# RAG data cache (specific subdirectories only)
 rag/data/cache/
 rag/embeddings/
 
