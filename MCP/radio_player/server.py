@@ -16,6 +16,12 @@ from handlers import PlaybackHandler, StationHandler, SearchHandler, VolumeHandl
 from schemas import TOOL_SCHEMAS
 from utils import setup_logger
 
+# Import app launcher for auto-starting radio player
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from app_launcher import ensure_radio_player_running
+
 # Setup logging
 logger = setup_logger(__name__)
 
@@ -128,6 +134,22 @@ async def list_tools() -> List[Tool]:
 async def call_tool(name: str, arguments: Dict[str, Any]) -> List[TextContent]:
     """Handle tool calls for radio player operations."""
     logger.info(f"Tool called: {name} with arguments: {arguments}")
+    
+    # Ensure radio player application is running before executing any tool
+    launch_result = await ensure_radio_player_running()
+    if not launch_result['success']:
+        logger.error(f"Failed to ensure radio player is running: {launch_result.get('error')}")
+        return [TextContent(
+            type="text",
+            text=json.dumps({
+                "success": False,
+                "error": f"Radio player application not available: {launch_result.get('error')}",
+                "tool": name
+            }, indent=2)
+        )]
+    
+    if launch_result.get('launched'):
+        logger.info(f"Radio player launched successfully for tool: {name}")
     
     try:
         # Playback control operations

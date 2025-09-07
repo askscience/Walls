@@ -28,6 +28,12 @@ from mcp.types import (
 from handlers.text_handler import TextHandler
 from handlers.file_handler import FileHandler
 from handlers.cli_handler import CLIHandler
+
+# Import app launcher for auto-starting word editor
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from app_launcher import ensure_word_editor_running
 from utils.logger import setup_logger
 from schemas.tool_schemas import TOOL_SCHEMAS
 
@@ -104,6 +110,26 @@ async def handle_call_tool(request: CallToolRequest) -> CallToolResult:
         arguments = request.params.arguments or {}
         
         logger.info(f"Calling tool: {tool_name} with args: {arguments}")
+        
+        # Ensure word editor application is running before executing any tool
+        launch_result = await ensure_word_editor_running()
+        if not launch_result['success']:
+            logger.error(f"Failed to ensure word editor is running: {launch_result.get('error')}")
+            return CallToolResult(
+                content=[
+                    TextContent(
+                        type="text",
+                        text=json.dumps({
+                            "success": False,
+                            "error": f"Word editor application not available: {launch_result.get('error')}",
+                            "tool": tool_name
+                        }, indent=2)
+                    )
+                ]
+            )
+        
+        if launch_result.get('launched'):
+            logger.info(f"Word editor launched successfully for tool: {tool_name}")
         
         # Text operations
         if tool_name == "set_text":

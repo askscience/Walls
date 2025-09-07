@@ -28,6 +28,12 @@ from mcp.types import (
 
 from handlers.navigation_handler import NavigationHandler
 from handlers.bookmark_handler import BookmarkHandler
+
+# Import app launcher for auto-starting browser
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from app_launcher import ensure_browser_running
 from handlers.page_handler import PageHandler
 from handlers.adblock_handler import AdblockHandler
 from utils.logger import setup_logger
@@ -139,6 +145,26 @@ async def handle_call_tool(request: CallToolRequest) -> CallToolResult:
         arguments = request.params.arguments or {}
         
         logger.info(f"Calling tool: {tool_name} with args: {arguments}")
+        
+        # Ensure browser application is running before executing any tool
+        launch_result = await ensure_browser_running()
+        if not launch_result['success']:
+            logger.error(f"Failed to ensure browser is running: {launch_result.get('error')}")
+            return CallToolResult(
+                content=[
+                    TextContent(
+                        type="text",
+                        text=json.dumps({
+                            "success": False,
+                            "error": f"Browser application not available: {launch_result.get('error')}",
+                            "tool": tool_name
+                        }, indent=2)
+                    )
+                ]
+            )
+        
+        if launch_result.get('launched'):
+            logger.info(f"Browser launched successfully for tool: {tool_name}")
         
         # Navigation operations
         if tool_name == "open_url":
