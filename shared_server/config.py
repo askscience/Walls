@@ -32,24 +32,56 @@ class ServerConfig:
         if app_config_json_path.exists():
             try:
                 with open(app_config_json_path, 'r') as f:
-                    return json.load(f)
+                    content = f.read().strip()
+                    if not content:
+                        # Empty file, fall back to minimal defaults
+                        return {
+                            "server": {"base_port": 9000, "max_apps": 10, "timeout": 5.0, "host": "localhost", "auto_start_mcp": False},
+                            "apps": {},
+                            "logging": {"level": "INFO", "console_output": True},
+                            "security": {"allowed_hosts": ["localhost", "127.0.0.1"], "require_authentication": False}
+                        }
+                    return json.loads(content)
             except (json.JSONDecodeError, IOError) as e:
-                raise RuntimeError(f"Failed to load APP_config.json: {e}")
+                # Malformed or unreadable file, fall back to defaults instead of crashing
+                print(f"Warning: Failed to load APP_config.json ({e}); using defaults.")
+                return {
+                    "server": {"base_port": 9000, "max_apps": 10, "timeout": 5.0, "host": "localhost", "auto_start_mcp": False},
+                    "apps": {},
+                    "logging": {"level": "INFO", "console_output": True},
+                    "security": {"allowed_hosts": ["localhost", "127.0.0.1"], "require_authentication": False}
+                }
         else:
-            raise RuntimeError(f"APP_config.json not found at {app_config_json_path}")
+            # File missing, return defaults
+            return {
+                "server": {"base_port": 9000, "max_apps": 10, "timeout": 5.0, "host": "localhost", "auto_start_mcp": False},
+                "apps": {},
+                "logging": {"level": "INFO", "console_output": True},
+                "security": {"allowed_hosts": ["localhost", "127.0.0.1"], "require_authentication": False}
+            }
         
     def _load_mcp_config(self) -> Dict[str, Any]:
         """Load MCP configuration from JSON file."""
         # Load from MCP_config.json in shared_server directory
         mcp_config_json_path = Path(__file__).parent / "MCP_config.json"
+        default_mcp_config: Dict[str, Any] = {"mcp_servers": {}}
         if mcp_config_json_path.exists():
             try:
                 with open(mcp_config_json_path, 'r') as f:
-                    return json.load(f)
+                    content = f.read().strip()
+                    if not content:
+                        # Empty file, return sensible default to keep the server running
+                        print("Warning: MCP_config.json is empty; using default MCP configuration.")
+                        return default_mcp_config
+                    return json.loads(content)
             except (json.JSONDecodeError, IOError) as e:
-                raise RuntimeError(f"Failed to load MCP_config.json: {e}")
+                # Malformed or unreadable file, do not crash the whole system
+                print(f"Warning: Failed to load MCP_config.json ({e}); using default MCP configuration.")
+                return default_mcp_config
         else:
-            raise RuntimeError(f"MCP_config.json not found at {mcp_config_json_path}")
+            # File missing, use default
+            print("Warning: MCP_config.json not found; using default MCP configuration.")
+            return default_mcp_config
         
     def save(self):
         """Save both configurations to their respective files."""

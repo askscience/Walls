@@ -17,6 +17,7 @@ import argparse
 from pathlib import Path
 from datetime import datetime
 import json
+import socket
 
 # Resolve workspace root (the directory of this script)
 ROOT = Path(__file__).resolve().parent
@@ -70,6 +71,22 @@ def print_error(text: str) -> None:
 def print_info(text: str) -> None:
     """Print info message."""
     print(f"{Colors.CYAN}[INFO]{Colors.ENDC} {text}")
+
+# New: find a free TCP port for the Ollama MCP Bridge to avoid binding conflicts on :8000
+def find_free_port(start: int = 8000, max_tries: int = 50, host: str = "0.0.0.0") -> int | None:
+    """Find a free port starting from `start`, scanning up to `max_tries` ports.
+    Returns the free port number or None if none found within the range.
+    """
+    port = start
+    for _ in range(max_tries):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            try:
+                s.bind((host, port))
+                return port
+            except OSError:
+                port += 1
+    return None
 
 def print_status_table(processes: list) -> None:
     """Print a formatted status table."""
@@ -247,20 +264,37 @@ def main() -> int:
             print_warning("Could not verify Ollama status")
         
         try:
-            bridge_proc = start_process(["uv", "run", "ollama-mcp-bridge"], ROOT / "ollama-mcp-bridge")
-            processes.append(("Ollama MCP Bridge", bridge_proc))
-            print_success(f"Ollama MCP Bridge started with PID: {Colors.BOLD}{bridge_proc.pid}{Colors.ENDC}")
-            print_info("Bridge will attempt to connect to MCP servers...")
-            time.sleep(3)  # Give bridge time to connect to MCP servers
-            
-            # Check if bridge started successfully
-            if bridge_proc.poll() is not None:
-                print_warning(f"Bridge exited early with code {bridge_proc.poll()}")
-                print_info("This is normal if Ollama is not running or MCP servers need time to start")
-                print_info("You can manually start the bridge later with:")
-                print_info(f"  {Colors.CYAN}cd ollama-mcp-bridge && uv run ollama-mcp-bridge{Colors.ENDC}")
+            # Choose a free port for the bridge (default is 8000, but it may already be in use)
+            bridge_port = find_free_port(8000, 50)
+            if bridge_port is None:
+                print_warning("No free port found for Ollama MCP Bridge starting from 8000; skipping bridge start")
             else:
-                print_success("Bridge appears to be running successfully")
+                if bridge_port != 8000:
+                    print_warning(f"Port 8000 is in use, starting Ollama MCP Bridge on {bridge_port} instead")
+                else:
+                    print_info("Using default bridge port 8000")
+
+                bridge_cmd = [
+                    "uv", "run", "ollama-mcp-bridge",
+                    "--host", "0.0.0.0",
+                    "--port", str(bridge_port),
+                    "--config", "mcp-config.json",
+                    "--ollama-url", "http://localhost:11434",
+                ]
+                bridge_proc = start_process(bridge_cmd, ROOT / "ollama-mcp-bridge")
+                processes.append(("Ollama MCP Bridge", bridge_proc))
+                print_success(f"Ollama MCP Bridge started with PID: {Colors.BOLD}{bridge_proc.pid}{Colors.ENDC}")
+                print_info("Bridge will attempt to connect to MCP servers...")
+                time.sleep(3)  # Give bridge time to connect to MCP servers
+                
+                # Check if bridge started successfully
+                if bridge_proc.poll() is not None:
+                    print_warning(f"Bridge exited early with code {bridge_proc.poll()}")
+                    print_info("This is normal if Ollama is not running or MCP servers need time to start")
+                    print_info("You can manually start the bridge later with:")
+                    print_info(f"  {Colors.CYAN}cd ollama-mcp-bridge && uv run ollama-mcp-bridge --port {bridge_port}{Colors.ENDC}")
+                else:
+                    print_success("Bridge appears to be running successfully")
                 
         except Exception as e:
             print_error(f"Failed to start Ollama MCP Bridge: {e}")
