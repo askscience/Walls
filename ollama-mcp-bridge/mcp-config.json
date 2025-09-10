@@ -9,33 +9,40 @@
     },
     "word_editor": {
       "command": "python",
-      "args": ["MCP/word_editor/server.py"],
+      "args": ["../MCP/word_editor/server.py"],
       "env": {
         "MCP_LOG_LEVEL": "ERROR"
       }
     },
     "browser": {
       "command": "python",
-      "args": ["MCP/browser/server.py"],
+      "args": ["../MCP/browser/server.py"],
       "env": {
         "MCP_LOG_LEVEL": "ERROR",
-        "PYTHONPATH": "MCP/browser"
+        "PYTHONPATH": "../MCP/browser"
       }
     },
     "radio_player": {
       "command": "python",
-      "args": ["MCP/radio_player/server.py"],
+      "args": ["../MCP/radio_player/server.py"],
       "env": {
         "MCP_LOG_LEVEL": "ERROR",
-        "PYTHONPATH": "MCP/radio_player"
+        "PYTHONPATH": "../MCP/radio_player"
       }
     },
     "rag": {
-      "command": "python",
-      "args": ["MCP/rag/server.py"],
+      "command": "../venv/bin/python",
+      "args": ["../MCP/rag/server.py"],
       "env": {
         "MCP_LOG_LEVEL": "ERROR",
-        "PYTHONPATH": "MCP/rag"
+        "PYTHONPATH": "../MCP/rag"
+      }
+    },
+    "weather": {
+      "command": "python",
+      "args": ["./mock-weather-mcp-server/main.py"],
+      "env": {
+        "MCP_LOG_LEVEL": "ERROR"
       }
     }
   }

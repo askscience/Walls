@@ -24,7 +24,7 @@
         "check_gui_status",
         "get_available_commands"
       ],
-      "process_id": 75234,
+      "process_id": 75596,
       "restart_on_failure": true,
       "max_restart_attempts": 3
     },
@@ -57,7 +57,7 @@
         "adblock_toggle",
         "adblock_load_rules"
       ],
-      "process_id": 75235,
+      "process_id": 75597,
       "restart_on_failure": true,
       "max_restart_attempts": 3
     },
@@ -88,7 +88,7 @@
         "get_volume",
         "get_playback_status"
       ],
-      "process_id": 75236,
+      "process_id": 75598,
       "restart_on_failure": true,
       "max_restart_attempts": 3
     },
@@ -116,7 +116,7 @@
         "rag_health_check",
         "rag_get_status"
       ],
-      "process_id": 75237,
+      "process_id": 75600,
       "restart_on_failure": true,
       "max_restart_attempts": 3
     }

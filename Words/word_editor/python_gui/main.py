@@ -419,7 +419,7 @@ class MainWindow(QMainWindow):
                     print(f"Error in command_handler: {e}")
                     return {'status': 'error', 'message': str(e)}
             
-            self.assigned_port = shared_server.register_app("words", command_handler)
+            self.assigned_port = shared_server.register_app("word_editor", command_handler)
             
             # Write port file for CLI compatibility
             port_file = Path(tempfile.gettempdir()) / "words_gui_port"
@@ -1051,6 +1051,16 @@ class MainWindow(QMainWindow):
                 # Reset rich mode when inserting text via CLI to allow formatting
                 self.is_rich_mode = False
                 self.set_editor_text(self.doc.get_text())
+            elif name == "append_text":
+                text = str(args.get("text", ""))
+                print(f"handle_command: appending text: {text[:50]}...")
+                current_text = self.doc.get_text()
+                new_text = current_text + text
+                self.doc.set_text(new_text)
+                # Reset rich mode when appending text via CLI to allow formatting
+                self.is_rich_mode = False
+                self.set_editor_text(new_text)
+                print("handle_command: append_text completed")
             elif name == "open":
                 path = str(args.get("path", ""))
                 if not path:
@@ -1111,7 +1121,7 @@ class MainWindow(QMainWindow):
             if hasattr(self, 'assigned_port') and self.assigned_port is not None:
                 from shared_server import get_shared_server
                 shared_server = get_shared_server()
-                shared_server.unregister_app("words")
+                shared_server.unregister_app("word_editor")
                 print("Words unregistered from shared server")
             # Stop fallback server if we used it
             elif hasattr(self, 'server'):

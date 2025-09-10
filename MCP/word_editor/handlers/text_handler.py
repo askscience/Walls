@@ -10,17 +10,23 @@ logger = setup_logger(__name__)
 class TextHandler:
     """Handles text operations for the word editor."""
     
-    def __init__(self, host: str = "localhost", port: int = 9998):
+    def __init__(self, host: str = "localhost", port: int = 9000):
         self.host = host
         self.port = port
     
-    async def _send_command(self, command: str) -> Dict[str, Any]:
+    async def _send_command(self, command: str, args: Dict[str, Any] = None) -> Dict[str, Any]:
         """Send a command to the word editor GUI via TCP."""
+        import json
         try:
             reader, writer = await asyncio.open_connection(self.host, self.port)
             
-            # Send command
-            writer.write(command.encode() + b'\n')
+            # Send command in JSON format expected by shared server
+            command_data = {
+                "cmd": command,
+                "args": args or {}
+            }
+            command_json = json.dumps(command_data) + "\n"
+            writer.write(command_json.encode())
             await writer.drain()
             
             # Read response
@@ -47,46 +53,38 @@ class TextHandler:
     
     async def set_text(self, text: str) -> Dict[str, Any]:
         """Set the entire text content in the word editor."""
-        # Escape quotes and newlines for command
-        escaped_text = text.replace('"', '\\"').replace('\n', '\\n')
-        command = f'set_text "{escaped_text}"'
-        
-        result = await self._send_command(command)
-        result["operation"] = "set_text"
-        result["text_length"] = len(text)
-        
+        args = {"text": text}
+        result = await self._send_command("set_text", args)
+        result.update({
+            "operation": "set_text",
+            "text_length": len(text)
+        })
         return result
     
     async def insert_text(self, position: int, text: str) -> Dict[str, Any]:
         """Insert text at a specific position in the word editor."""
-        # Escape quotes and newlines for command
-        escaped_text = text.replace('"', '\\"').replace('\n', '\\n')
-        command = f'insert_text {position} "{escaped_text}"'
-        
-        result = await self._send_command(command)
-        result["operation"] = "insert_text"
-        result["position"] = position
-        result["text_length"] = len(text)
-        
+        args = {"position": position, "text": text}
+        result = await self._send_command("insert_text", args)
+        result.update({
+            "operation": "insert_text",
+            "position": position,
+            "text_length": len(text)
+        })
         return result
     
     async def append_text(self, text: str) -> Dict[str, Any]:
-        """Append text to the end of the current content."""
-        # Escape quotes and newlines for command
-        escaped_text = text.replace('"', '\\"').replace('\n', '\\n')
-        command = f'append_text "{escaped_text}"'
-        
-        result = await self._send_command(command)
-        result["operation"] = "append_text"
-        result["text_length"] = len(text)
-        
+        """Append text to the end of the document."""
+        args = {"text": text}
+        result = await self._send_command("append_text", args)
+        result.update({
+            "operation": "append_text",
+            "text_length": len(text)
+        })
         return result
     
     async def get_text(self) -> Dict[str, Any]:
         """Get the current text content from the word editor."""
-        command = "get_text"
-        
-        result = await self._send_command(command)
+        result = await self._send_command("get_text")
         result["operation"] = "get_text"
         
         if result["success"]:

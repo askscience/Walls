@@ -148,10 +148,13 @@ def start_mcp_servers() -> bool:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Start core Walls services")
     parser.add_argument("--debug", action="store_true", help="Enable debug output")
-    parser.add_argument("--with-ollama", action="store_true", help="Start Ollama MCP bridge")
+    parser.add_argument("--no-ollama", action="store_true", help="Skip starting Ollama MCP bridge")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output for all components")
     
     args = parser.parse_args()
+    
+    # Ollama is now enabled by default, unless --no-ollama is specified
+    with_ollama = not args.no_ollama
     
     # Enable debug modes if requested
     if args.debug or args.verbose:
@@ -172,7 +175,7 @@ def main() -> int:
     print_info(f"Python: {Colors.BOLD}{PYTHON}{Colors.ENDC}")
     print_info(f"Working directory: {Colors.BOLD}{ROOT}{Colors.ENDC}")
     
-    if args.with_ollama:
+    if with_ollama:
         print_info(f"Mode: {Colors.BOLD}{Colors.YELLOW}Full Stack + Ollama Bridge{Colors.ENDC}")
     else:
         print_info(f"Mode: {Colors.BOLD}{Colors.GREEN}Standard Stack{Colors.ENDC}")
@@ -184,7 +187,7 @@ def main() -> int:
         print_info("   - MCP server command execution traces")
     
     processes = []
-    total_steps = 4 if args.with_ollama else 3
+    total_steps = 4 if with_ollama else 3
     
     # 1) Start Shared Server (coordination service) - always required
     print_step(1, total_steps, "Starting Shared Server (Coordination Service)")
@@ -225,8 +228,8 @@ def main() -> int:
     if args.debug or args.verbose:
         print_info("MCP servers will log detailed operation information")
     
-    # 4) Start Ollama MCP Bridge (optional)
-    if args.with_ollama:
+    # 4) Start Ollama MCP Bridge (enabled by default)
+    if with_ollama:
         print_step(3, total_steps, "Starting Ollama MCP Bridge")
         print_info("Checking Ollama availability...")
         
@@ -265,7 +268,7 @@ def main() -> int:
             print_info("You can start it manually later if needed")
     
     # 5) Start AI Interface - always required
-    final_step = total_steps if args.with_ollama else 3
+    final_step = total_steps if with_ollama else 3
     print_step(final_step, total_steps, "Starting AI Interface")
     
     if args.debug or args.verbose:
@@ -301,7 +304,7 @@ def main() -> int:
     
     print(f"\n{Colors.BOLD}{Colors.GREEN}All services are running successfully!{Colors.ENDC}")
     
-    if args.with_ollama:
+    if with_ollama:
         print(f"\n{Colors.BOLD}{Colors.YELLOW}Ollama Integration Active{Colors.ENDC}")
         print(f"   {Colors.CYAN}-{Colors.ENDC} Bridge connects to all MCP servers")
         print(f"   {Colors.CYAN}-{Colors.ENDC} Ensure 'ollama serve' is running")

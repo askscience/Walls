@@ -37,6 +37,7 @@ def setup_ollama_models(
     embedding_model: str,
     request_timeout: float,
     model_params: Dict[str, Any],
+    ollama_base_url: str = None,
 ):
     """
     Initializes and returns instances of Ollama (for LLM) and OllamaEmbedding.
@@ -55,11 +56,12 @@ def setup_ollama_models(
 
     llm = Ollama(
         model=llm_model,
+        base_url=ollama_base_url,
         request_timeout=request_timeout,
         system_prompt=system_prompt,
         **model_params,
     )
-    embedding_model_instance = OllamaEmbedding(model_name=embedding_model)
+    embedding_model_instance = OllamaEmbedding(model_name=embedding_model, base_url=ollama_base_url)
     
     # Removed blocking preload test call to avoid startup hangs
     
@@ -72,6 +74,7 @@ def setup_mcp_enabled_rag(
     embedding_model: str = "nomic-embed-text",
     request_timeout: float = 120.0,
     model_params: Dict[str, Any] = None,
+    ollama_base_url: str = None,
 ):
     """
     Setup MCP-enabled RAG pipeline with tool calling capabilities.
@@ -90,7 +93,7 @@ def setup_mcp_enabled_rag(
         model_params = {}
     
     # Setup standard Ollama models
-    llm, embed_model = setup_ollama_models(llm_model, embedding_model, request_timeout, model_params)
+    llm, embed_model = setup_ollama_models(llm_model, embedding_model, request_timeout, model_params, ollama_base_url)
     
     # Initialize MCP-enabled RAG pipeline
     mcp_pipeline = setup_mcp_rag_pipeline_sync(index, llm)

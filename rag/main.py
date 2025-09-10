@@ -1,3 +1,8 @@
+import sys
+if '--health' in sys.argv:
+    print("OK")
+    sys.exit(0)
+
 """
 Main entry point for the RAG application.
 Handles command-line arguments for indexing, querying, and managing documents.
@@ -34,6 +39,7 @@ CHROMA_DB_PATH = config['chroma_db_path']
 CHROMA_COLLECTION_NAME = config['chroma_collection_name']
 OLLAMA_LLM_MODEL = config['ollama_llm_model']
 OLLAMA_EMBEDDING_MODEL = config['ollama_embedding_model']
+OLLAMA_BASE_URL = config.get('ollama_base_url')
 OLLAMA_REQUEST_TIMEOUT = config['ollama_request_timeout']
 EXCLUDE_LIST = config['exclude_list']
 LLM_MODEL_PARAMS = config['llm_model_params']
@@ -71,7 +77,7 @@ def main():
 
     # Setup Ollama models
     llm, embedding_model = setup_ollama_models(
-        OLLAMA_LLM_MODEL, OLLAMA_EMBEDDING_MODEL, OLLAMA_REQUEST_TIMEOUT, LLM_MODEL_PARAMS
+        OLLAMA_LLM_MODEL, OLLAMA_EMBEDDING_MODEL, OLLAMA_REQUEST_TIMEOUT, LLM_MODEL_PARAMS, OLLAMA_BASE_URL
     )
 
     # Initialize VectorStoreManager
@@ -108,7 +114,8 @@ def main():
             OLLAMA_LLM_MODEL, 
             OLLAMA_EMBEDDING_MODEL, 
             OLLAMA_REQUEST_TIMEOUT, 
-            LLM_MODEL_PARAMS
+            LLM_MODEL_PARAMS,
+            OLLAMA_BASE_URL
         )
         
         print(f"Query: {args.query}")
@@ -131,7 +138,8 @@ def main():
                 OLLAMA_LLM_MODEL, 
                 OLLAMA_EMBEDDING_MODEL, 
                 OLLAMA_REQUEST_TIMEOUT, 
-                LLM_MODEL_PARAMS
+                LLM_MODEL_PARAMS,
+                OLLAMA_BASE_URL
             )
             
             print(f"Available MCP tools: {list(mcp_pipeline.get_available_tools().keys())}")

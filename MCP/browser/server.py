@@ -1,35 +1,17 @@
-#!/usr/bin/env python3
-"""
-Browser MCP Server
-
-Provides MCP tools for controlling the Browser application including:
-- Navigation operations (open, back, forward, reload)
-- Bookmark management (add, list, get JSON)
-- Page operations (click, get HTML, summarize)
-- Adblock controls (enable, disable, load rules)
-"""
+"""Browser MCP server using FastMCP."""
 
 import asyncio
 import json
 import logging
 from typing import Any, Dict, List, Optional
 
-from mcp.server import Server, NotificationOptions
-from mcp.server.models import InitializationOptions
-# stdio_server will be imported in main()
-from mcp.types import (
-    CallToolRequest,
-    CallToolResult,
-    ListToolsRequest,
-    ListToolsResult,
-    Tool,
-    TextContent,
-)
+from mcp.server.fastmcp import FastMCP
+from mcp.types import TextContent
 
 from handlers.navigation_handler import NavigationHandler
 from handlers.bookmark_handler import BookmarkHandler
 
-# Import app launcher for auto-starting browser
+# Add parent directory to path for imports
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -42,8 +24,8 @@ from schemas.tool_schemas import TOOL_SCHEMAS
 # Setup logging
 logger = setup_logger(__name__)
 
-# Initialize server
-server = Server("browser")
+# Initialize FastMCP server
+mcp = FastMCP("browser")
 
 # Initialize handlers
 navigation_handler = NavigationHandler()
@@ -51,217 +33,241 @@ bookmark_handler = BookmarkHandler()
 page_handler = PageHandler()
 adblock_handler = AdblockHandler()
 
-@server.list_tools()
-async def handle_list_tools() -> List[Tool]:
-    """List available tools for browser operations."""
-    tools = [
-        # Navigation tools
-        Tool(
-            name="open_url",
-            description="Open a webpage in the browser",
-            inputSchema=TOOL_SCHEMAS["open_url"]
-        ),
-        Tool(
-            name="navigate_back",
-            description="Navigate back in browser history",
-            inputSchema=TOOL_SCHEMAS["navigate_back"]
-        ),
-        Tool(
-            name="navigate_forward",
-            description="Navigate forward in browser history",
-            inputSchema=TOOL_SCHEMAS["navigate_forward"]
-        ),
-        Tool(
-            name="reload_page",
-            description="Reload the current page",
-            inputSchema=TOOL_SCHEMAS["reload_page"]
-        ),
-        
-        # Bookmark tools
-        Tool(
-            name="add_bookmark",
-            description="Add a bookmark for the current page or specified URL",
-            inputSchema=TOOL_SCHEMAS["add_bookmark"]
-        ),
-        Tool(
-            name="get_bookmarks",
-            description="Get all bookmarks as JSON",
-            inputSchema=TOOL_SCHEMAS["get_bookmarks"]
-        ),
-        
-        # Page interaction tools
-        Tool(
-            name="click_element",
-            description="Click an element using CSS selector",
-            inputSchema=TOOL_SCHEMAS["click_element"]
-        ),
-        Tool(
-            name="click_text",
-            description="Click on text content",
-            inputSchema=TOOL_SCHEMAS["click_text"]
-        ),
-        Tool(
-            name="fill_form",
-            description="Fill form fields with provided data",
-            inputSchema=TOOL_SCHEMAS["fill_form"]
-        ),
-        Tool(
-            name="get_page_content",
-            description="Get the current page content as text or HTML",
-            inputSchema=TOOL_SCHEMAS["get_page_content"]
-        ),
-        Tool(
-            name="take_screenshot",
-            description="Take a screenshot of the current page",
-            inputSchema=TOOL_SCHEMAS["take_screenshot"]
-        ),
-        
-        # Ad blocking tools
-        Tool(
-            name="enable_adblock",
-            description="Enable ad blocking for the current session",
-            inputSchema=TOOL_SCHEMAS["enable_adblock"]
-        ),
-        Tool(
-            name="disable_adblock",
-            description="Disable ad blocking for the current session",
-            inputSchema=TOOL_SCHEMAS["disable_adblock"]
-        ),
-        Tool(
-            name="get_adblock_status",
-            description="Get current ad blocking status",
-            inputSchema=TOOL_SCHEMAS["get_adblock_status"]
-        )
-    ]
-    
-    logger.info(f"Listed {len(tools)} available tools")
-    return tools
-
-@server.call_tool()
-async def handle_call_tool(request: CallToolRequest) -> CallToolResult:
-    """Handle tool calls for browser operations."""
+async def ensure_browser_running_wrapper():
+    """Ensure browser is running and return launch result."""
     try:
-        tool_name = request.params.name
-        arguments = request.params.arguments or {}
-        
-        logger.info(f"Calling tool: {tool_name} with args: {arguments}")
-        
-        # Ensure browser application is running before executing any tool
         launch_result = await ensure_browser_running()
         if not launch_result['success']:
             logger.error(f"Failed to ensure browser is running: {launch_result.get('error')}")
-            return CallToolResult(
-                content=[
-                    TextContent(
-                        type="text",
-                        text=json.dumps({
-                            "success": False,
-                            "error": f"Browser application not available: {launch_result.get('error')}",
-                            "tool": tool_name
-                        }, indent=2)
-                    )
-                ]
-            )
+            return {
+                "success": False,
+                "error": f"Browser application not available: {launch_result.get('error')}"
+            }
         
         if launch_result.get('launched'):
-            logger.info(f"Browser launched successfully for tool: {tool_name}")
+            logger.info("Browser launched successfully")
         
-        # Navigation operations
-        if tool_name == "open_url":
-            result = await navigation_handler.open_url(arguments.get("url", ""))
-        elif tool_name == "navigate_back":
-            result = await navigation_handler.navigate_back()
-        elif tool_name == "navigate_forward":
-            result = await navigation_handler.navigate_forward()
-        elif tool_name == "reload_page":
-            result = await navigation_handler.reload_page()
-            
-        # Bookmark operations
-        elif tool_name == "add_bookmark":
-            result = await bookmark_handler.add_bookmark(
-                arguments.get("url"),
-                arguments.get("name")
-            )
-        elif tool_name == "get_bookmarks":
-            result = await bookmark_handler.get_bookmarks()
-            
-        # Page operations
-        elif tool_name == "click_element":
-            result = await page_handler.click_element(arguments.get("selector", ""))
-        elif tool_name == "click_text":
-            result = await page_handler.click_text(arguments.get("text", ""))
-        elif tool_name == "get_page_html":
-            result = await page_handler.get_page_html()
-        elif tool_name == "summarize_page":
-            result = await page_handler.summarize_page()
-            
-        # Adblock operations
-        elif tool_name == "adblock_enable":
-            result = await adblock_handler.enable_adblock()
-        elif tool_name == "adblock_disable":
-            result = await adblock_handler.disable_adblock()
-        elif tool_name == "adblock_toggle":
-            result = await adblock_handler.toggle_adblock()
-        elif tool_name == "adblock_status":
-            result = await adblock_handler.get_status()
-        elif tool_name == "adblock_load_rules":
-            result = await adblock_handler.load_rules(
-                arguments.get("path", ""),
-                arguments.get("is_directory", False)
-            )
-        elif tool_name == "adblock_fetch_easylist":
-            result = await adblock_handler.fetch_easylist(
-                arguments.get("url")
-            )
-            
-        else:
-            raise ValueError(f"Unknown tool: {tool_name}")
-            
-        return CallToolResult(
-            content=[
-                TextContent(
-                    type="text",
-                    text=json.dumps(result, indent=2)
-                )
-            ]
-        )
+        return {"success": True}
         
     except Exception as e:
-        logger.error(f"Error calling tool {request.params.name}: {e}")
-        return CallToolResult(
-            content=[
-                TextContent(
-                    type="text",
-                    text=json.dumps({
-                        "error": str(e),
-                        "success": False
-                    }, indent=2)
-                )
-            ],
-            isError=True
-        )
+        logger.error(f"Error ensuring browser is running: {str(e)}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
 
-async def main():
-    """Main entry point for the browser MCP server."""
-    logger.info("Starting Browser MCP Server...")
-    
-    # Import and run the server using MCP's standard approach
-    from mcp.server.stdio import stdio_server
-    from mcp.server.models import InitializationOptions
-    
-    async with stdio_server() as (read_stream, write_stream):
-        await server.run(
-            read_stream,
-            write_stream,
-            InitializationOptions(
-                server_name="browser",
-                server_version="1.0.0",
-                capabilities=server.get_capabilities(
-                    notification_options=NotificationOptions(),
-                    experimental_capabilities={}
-                )
-            )
-        )
+# Navigation tools
+@mcp.tool()
+async def open_url(url: str) -> dict:
+    """Open a webpage in the browser."""
+    logger.info(f"Opening URL: {url}")
+    browser_check = await ensure_browser_running_wrapper()
+    if not browser_check["success"]:
+        return browser_check
+    try:
+        return await navigation_handler.open_url(url)
+    except Exception as e:
+        logger.error(f"Error in open_url: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@mcp.tool()
+async def navigate_back() -> dict:
+    """Navigate back in browser history."""
+    logger.info("Navigating back")
+    browser_check = await ensure_browser_running_wrapper()
+    if not browser_check["success"]:
+        return browser_check
+    try:
+        return await navigation_handler.navigate_back()
+    except Exception as e:
+        logger.error(f"Error in navigate_back: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@mcp.tool()
+async def navigate_forward() -> dict:
+    """Navigate forward in browser history."""
+    logger.info("Navigating forward")
+    browser_check = await ensure_browser_running_wrapper()
+    if not browser_check["success"]:
+        return browser_check
+    try:
+        return await navigation_handler.navigate_forward()
+    except Exception as e:
+        logger.error(f"Error in navigate_forward: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@mcp.tool()
+async def reload_page() -> dict:
+    """Reload the current page."""
+    logger.info("Reloading page")
+    browser_check = await ensure_browser_running_wrapper()
+    if not browser_check["success"]:
+        return browser_check
+    try:
+        return await navigation_handler.reload_page()
+    except Exception as e:
+        logger.error(f"Error in reload_page: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+# Bookmark tools
+@mcp.tool()
+async def add_bookmark(url: Optional[str] = None, name: Optional[str] = None) -> dict:
+    """Add a bookmark for the current page or specified URL."""
+    logger.info(f"Adding bookmark: {name} -> {url}")
+    browser_check = await ensure_browser_running_wrapper()
+    if not browser_check["success"]:
+        return browser_check
+    try:
+        return await bookmark_handler.add_bookmark(url, name)
+    except Exception as e:
+        logger.error(f"Error in add_bookmark: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@mcp.tool()
+async def get_bookmarks() -> dict:
+    """Get all bookmarks as JSON."""
+    logger.info("Getting bookmarks")
+    browser_check = await ensure_browser_running_wrapper()
+    if not browser_check["success"]:
+        return browser_check
+    try:
+        return await bookmark_handler.get_bookmarks()
+    except Exception as e:
+        logger.error(f"Error in get_bookmarks: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+# Page interaction tools
+@mcp.tool()
+async def click_element(selector: str) -> dict:
+    """Click an element using CSS selector."""
+    logger.info(f"Clicking element: {selector}")
+    browser_check = await ensure_browser_running_wrapper()
+    if not browser_check["success"]:
+        return browser_check
+    try:
+        return await page_handler.click_element(selector)
+    except Exception as e:
+        logger.error(f"Error in click_element: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@mcp.tool()
+async def click_text(text: str) -> dict:
+    """Click on text content."""
+    logger.info(f"Clicking text: {text}")
+    browser_check = await ensure_browser_running_wrapper()
+    if not browser_check["success"]:
+        return browser_check
+    try:
+        return await page_handler.click_text(text)
+    except Exception as e:
+        logger.error(f"Error in click_text: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@mcp.tool()
+async def get_page_html() -> dict:
+    """Get the current page HTML content."""
+    logger.info("Getting page HTML")
+    browser_check = await ensure_browser_running_wrapper()
+    if not browser_check["success"]:
+        return browser_check
+    try:
+        return await page_handler.get_page_html()
+    except Exception as e:
+        logger.error(f"Error in get_page_html: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@mcp.tool()
+async def summarize_page() -> dict:
+    """Get a JSON summary of the current page with title, content, and links."""
+    logger.info("Summarizing page")
+    browser_check = await ensure_browser_running_wrapper()
+    if not browser_check["success"]:
+        return browser_check
+    try:
+        return await page_handler.summarize_page()
+    except Exception as e:
+        logger.error(f"Error in summarize_page: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+# Adblock tools
+@mcp.tool()
+async def adblock_enable() -> dict:
+    """Enable ad blocking for the current session."""
+    logger.info("Enabling adblock")
+    browser_check = await ensure_browser_running_wrapper()
+    if not browser_check["success"]:
+        return browser_check
+    try:
+        return await adblock_handler.enable_adblock()
+    except Exception as e:
+        logger.error(f"Error in adblock_enable: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@mcp.tool()
+async def adblock_disable() -> dict:
+    """Disable ad blocking for the current session."""
+    logger.info("Disabling adblock")
+    browser_check = await ensure_browser_running_wrapper()
+    if not browser_check["success"]:
+        return browser_check
+    try:
+        return await adblock_handler.disable_adblock()
+    except Exception as e:
+        logger.error(f"Error in adblock_disable: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@mcp.tool()
+async def adblock_toggle() -> dict:
+    """Toggle adblock on/off."""
+    logger.info("Toggling adblock")
+    browser_check = await ensure_browser_running_wrapper()
+    if not browser_check["success"]:
+        return browser_check
+    try:
+        return await adblock_handler.toggle_adblock()
+    except Exception as e:
+        logger.error(f"Error in adblock_toggle: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@mcp.tool()
+async def adblock_status() -> dict:
+    """Get current adblock status."""
+    logger.info("Getting adblock status")
+    browser_check = await ensure_browser_running_wrapper()
+    if not browser_check["success"]:
+        return browser_check
+    try:
+        return await adblock_handler.get_status()
+    except Exception as e:
+        logger.error(f"Error in adblock_status: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@mcp.tool()
+async def adblock_load_rules(path: str, is_directory: bool = False) -> dict:
+    """Load adblock rules from file or directory."""
+    logger.info(f"Loading adblock rules from: {path} (directory: {is_directory})")
+    browser_check = await ensure_browser_running_wrapper()
+    if not browser_check["success"]:
+        return browser_check
+    try:
+        return await adblock_handler.load_rules(path, is_directory)
+    except Exception as e:
+        logger.error(f"Error in adblock_load_rules: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+@mcp.tool()
+async def adblock_fetch_easylist(url: Optional[str] = None) -> dict:
+    """Fetch EasyList rules from URL."""
+    logger.info(f"Fetching EasyList from: {url}")
+    browser_check = await ensure_browser_running_wrapper()
+    if not browser_check["success"]:
+        return browser_check
+    try:
+        return await adblock_handler.fetch_easylist(url)
+    except Exception as e:
+        logger.error(f"Error in adblock_fetch_easylist: {str(e)}")
+        return {"success": False, "error": str(e)}
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    logger.info("Starting Browser MCP Server with FastMCP...")
+    mcp.run()

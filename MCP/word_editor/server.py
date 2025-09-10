@@ -1,35 +1,18 @@
-#!/usr/bin/env python3
-"""
-Word Editor MCP Server
-
-Provides MCP tools for controlling the Word Editor application including:
-- Text operations (set, insert, append)
-- File operations (open, save)
-- Real-time CLI commands
-"""
+"""Word Editor MCP server using FastMCP."""
 
 import asyncio
 import json
 import logging
 from typing import Any, Dict, List, Optional
 
-from mcp.server import Server, NotificationOptions
-from mcp.server.models import InitializationOptions
-from mcp.server.stdio import stdio_server
-from mcp.types import (
-    CallToolRequest,
-    CallToolResult,
-    ListToolsRequest,
-    ListToolsResult,
-    Tool,
-    TextContent,
-)
+from mcp.server.fastmcp import FastMCP
+from mcp.types import TextContent
 
 from handlers.text_handler import TextHandler
 from handlers.file_handler import FileHandler
 from handlers.cli_handler import CLIHandler
 
-# Import app launcher for auto-starting word editor
+# Add parent directory to path for imports
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -40,170 +23,148 @@ from schemas.tool_schemas import TOOL_SCHEMAS
 # Setup logging
 logger = setup_logger(__name__)
 
-# Initialize server
-server = Server("word-editor")
+# Initialize FastMCP server
+mcp = FastMCP("word-editor")
 
 # Initialize handlers
 text_handler = TextHandler()
 file_handler = FileHandler()
 cli_handler = CLIHandler()
 
-@server.list_tools()
-async def handle_list_tools() -> List[Tool]:
-    """List available tools for word editor operations."""
-    tools = [
-        # Text operation tools
-        Tool(
-            name="set_text",
-            description="Set the entire text content in the word editor",
-            inputSchema=TOOL_SCHEMAS["set_text"]
-        ),
-        Tool(
-            name="insert_text",
-            description="Insert text at a specific position in the word editor",
-            inputSchema=TOOL_SCHEMAS["insert_text"]
-        ),
-        Tool(
-            name="append_text",
-            description="Append text to the end of the current content",
-            inputSchema=TOOL_SCHEMAS["append_text"]
-        ),
-        Tool(
-            name="get_text",
-            description="Get the current text content from the word editor",
-            inputSchema=TOOL_SCHEMAS["get_text"]
-        ),
-        
-        # File operation tools
-        Tool(
-            name="open_file",
-            description="Open a file in the word editor",
-            inputSchema=TOOL_SCHEMAS["open_file"]
-        ),
-        Tool(
-            name="save_file",
-            description="Save the current content to a file",
-            inputSchema=TOOL_SCHEMAS["save_file"]
-        ),
-        
-        # CLI operation tools
-        Tool(
-            name="send_cli_command",
-            description="Send a command to the word editor CLI",
-            inputSchema=TOOL_SCHEMAS["send_cli_command"]
-        ),
-        Tool(
-            name="check_gui_status",
-            description="Check if the word editor GUI is running and accessible",
-            inputSchema=TOOL_SCHEMAS["check_gui_status"]
-        )
-    ]
-    
-    logger.info(f"Listed {len(tools)} available tools")
-    return tools
-
-@server.call_tool()
-async def handle_call_tool(request: CallToolRequest) -> CallToolResult:
-    """Handle tool calls for word editor operations."""
+async def ensure_word_editor_available():
+    """Check if word editor is available."""
     try:
-        tool_name = request.params.name
-        arguments = request.params.arguments or {}
-        
-        logger.info(f"Calling tool: {tool_name} with args: {arguments}")
-        
-        # Ensure word editor application is running before executing any tool
         launch_result = await ensure_word_editor_running()
         if not launch_result['success']:
             logger.error(f"Failed to ensure word editor is running: {launch_result.get('error')}")
-            return CallToolResult(
-                content=[
-                    TextContent(
-                        type="text",
-                        text=json.dumps({
-                            "success": False,
-                            "error": f"Word editor application not available: {launch_result.get('error')}",
-                            "tool": tool_name
-                        }, indent=2)
-                    )
-                ]
-            )
+            return [{"type": "text", "text": f"Word editor application not available: {launch_result.get('error')}"}]
         
         if launch_result.get('launched'):
-            logger.info(f"Word editor launched successfully for tool: {tool_name}")
+            logger.info("Word editor launched successfully")
         
-        # Text operations
-        if tool_name == "set_text":
-            result = await text_handler.set_text(arguments.get("text", ""))
-        elif tool_name == "insert_text":
-            result = await text_handler.insert_text(
-                arguments.get("position", 0),
-                arguments.get("text", "")
-            )
-        elif tool_name == "append_text":
-            result = await text_handler.append_text(arguments.get("text", ""))
-        elif tool_name == "get_text":
-            result = await text_handler.get_text()
-            
-        # File operations
-        elif tool_name == "open_file":
-            result = await file_handler.open_file(arguments.get("file_path", ""))
-        elif tool_name == "save_file":
-            result = await file_handler.save_file(
-                arguments.get("file_path"),
-                arguments.get("content")
-            )
-            
-        # CLI operations
-        elif tool_name == "send_cli_command":
-            result = await cli_handler.send_command(
-                arguments.get("command", ""),
-                arguments.get("args", [])
-            )
-        elif tool_name == "check_gui_status":
-            result = await cli_handler.check_status()
-            
-        else:
-            raise ValueError(f"Unknown tool: {tool_name}")
-            
-        return CallToolResult(
-            content=[
-                TextContent(
-                    type="text",
-                    text=json.dumps(result, indent=2)
-                )
-            ]
-        )
+        return None  # No error, word editor is available
         
     except Exception as e:
-        logger.error(f"Error calling tool {request.params.name}: {e}")
-        return CallToolResult(
-            content=[
-                TextContent(
-                    type="text",
-                    text=json.dumps({
-                        "error": str(e),
-                        "success": False
-                    }, indent=2)
-                )
-            ],
-            isError=True
-        )
+        logger.error(f"Error checking word editor availability: {e}")
+        return [{"type": "text", "text": f"Error: {str(e)}"}]
 
-async def main():
-    """Main entry point for the MCP server."""
-    async with stdio_server() as (read_stream, write_stream):
-        await server.run(
-            read_stream,
-            write_stream,
-            InitializationOptions(
-                server_name="word-editor",
-                server_version="1.0.0",
-                capabilities=server.get_capabilities(
-                    notification_options=NotificationOptions(),
-                    experimental_capabilities={}
-                )
-            )
-        )
+# Text operation tools
+@mcp.tool()
+async def set_text(text: str) -> List[Dict[str, Any]]:
+    """Set the entire text content in the word editor."""
+    logger.info(f"Setting text: {text[:50]}...")
+    check_result = await ensure_word_editor_available()
+    if check_result:
+        return check_result
+    try:
+        result = await text_handler.set_text(text)
+        return [{"type": "text", "text": str(result)}]
+    except Exception as e:
+        logger.error(f"Error in set_text: {e}")
+        return [{"type": "text", "text": f"Error: {str(e)}"}]
+
+@mcp.tool()
+async def insert_text(position: int, text: str) -> List[Dict[str, Any]]:
+    """Insert text at a specific position in the word editor."""
+    logger.info(f"Inserting text at position {position}: {text[:50]}...")
+    check_result = await ensure_word_editor_available()
+    if check_result:
+        return check_result
+    try:
+        result = await text_handler.insert_text(position, text)
+        return [{"type": "text", "text": str(result)}]
+    except Exception as e:
+        logger.error(f"Error in insert_text: {e}")
+        return [{"type": "text", "text": f"Error: {str(e)}"}]
+
+@mcp.tool()
+async def append_text(text: str) -> List[Dict[str, Any]]:
+    """Append text to the end of the current content."""
+    logger.info(f"Appending text: {text[:50]}...")
+    check_result = await ensure_word_editor_available()
+    if check_result:
+        return check_result
+    try:
+        result = await text_handler.append_text(text)
+        return [{"type": "text", "text": str(result)}]
+    except Exception as e:
+        logger.error(f"Error in append_text: {e}")
+        return [{"type": "text", "text": f"Error: {str(e)}"}]
+
+@mcp.tool()
+async def get_text() -> List[Dict[str, Any]]:
+    """Get the current text content from the word editor."""
+    logger.info("Getting text content")
+    check_result = await ensure_word_editor_available()
+    if check_result:
+        return check_result
+    try:
+        result = await text_handler.get_text()
+        return [{"type": "text", "text": str(result)}]
+    except Exception as e:
+        logger.error(f"Error in get_text: {e}")
+        return [{"type": "text", "text": f"Error: {str(e)}"}]
+
+# File operation tools
+@mcp.tool()
+async def open_file(file_path: str) -> List[Dict[str, Any]]:
+    """Open a file in the word editor."""
+    logger.info(f"Opening file: {file_path}")
+    check_result = await ensure_word_editor_available()
+    if check_result:
+        return check_result
+    try:
+        result = await file_handler.open_file(file_path)
+        return [{"type": "text", "text": str(result)}]
+    except Exception as e:
+        logger.error(f"Error in open_file: {e}")
+        return [{"type": "text", "text": f"Error: {str(e)}"}]
+
+@mcp.tool()
+async def save_file(file_path: Optional[str] = None, content: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Save the current content to a file."""
+    logger.info(f"Saving file: {file_path}")
+    check_result = await ensure_word_editor_available()
+    if check_result:
+        return check_result
+    try:
+        result = await file_handler.save_file(file_path, content)
+        return [{"type": "text", "text": str(result)}]
+    except Exception as e:
+        logger.error(f"Error in save_file: {e}")
+        return [{"type": "text", "text": f"Error: {str(e)}"}]
+
+# CLI operation tools
+@mcp.tool()
+async def send_cli_command(command: str, args: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+    """Send a command to the word editor CLI."""
+    if args is None:
+        args = []
+    logger.info(f"Sending CLI command: {command} with args: {args}")
+    check_result = await ensure_word_editor_available()
+    if check_result:
+        return check_result
+    try:
+        result = await cli_handler.send_command(command, args)
+        return [{"type": "text", "text": str(result)}]
+    except Exception as e:
+        logger.error(f"Error in send_cli_command: {e}")
+        return [{"type": "text", "text": f"Error: {str(e)}"}]
+
+@mcp.tool()
+async def check_gui_status() -> List[Dict[str, Any]]:
+    """Check if the word editor GUI is running and accessible."""
+    logger.info("Checking GUI status")
+    check_result = await ensure_word_editor_available()
+    if check_result:
+        return check_result
+    try:
+        result = await cli_handler.check_status()
+        return [{"type": "text", "text": str(result)}]
+    except Exception as e:
+        logger.error(f"Error in check_gui_status: {e}")
+        return [{"type": "text", "text": f"Error: {str(e)}"}]
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    logger.info("Starting Word Editor MCP Server with FastMCP...")
+    mcp.run()

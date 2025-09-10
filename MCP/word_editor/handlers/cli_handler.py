@@ -10,7 +10,7 @@ logger = setup_logger(__name__)
 class CLIHandler:
     """Handles CLI operations for the word editor."""
     
-    def __init__(self, host: str = "localhost", port: int = 9998):
+    def __init__(self, host: str = "localhost", port: int = 9000):
         self.host = host
         self.port = port
     
