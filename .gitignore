@@ -259,6 +259,15 @@ shared_server/*.pid
 htmlcov/
 .tox/
 
+# Test scripts and logs
+test_*.py
+*_test.py
+tests/
+test_logs/
+*.test.log
+*.test.out
+*.test.err
+
 # Documentation build
 docs/_build/
 docs/build/
